@@ -1,0 +1,66 @@
+/*Not sure what units of measurement to use yet, px vs em vs rem*/
+.calendar td{
+ padding: 25px;
+ width: 100px;
+}
+
+td.premonth{
+ color: gray;
+ text-align: center;
+}
+
+/*Haven't decided how to differentiate these headers yet*/
+/*--------------------------------------------------------*/
+.currentmonth th.month{
+ border: 1px solid gray;
+ color: #000000;
+ text-align: center;
+}
+
+.currentmonth th.prevmonth{
+ border: 1px solid gray;
+ color: #000000;
+ text-align: center;
+ cursor: pointer;
+}
+
+.currentmonth th.nextmonth{
+ border: 1px solid gray;
+ color: #000000;
+ text-align: center;
+ cursor: pointer;
+}
+
+.currentmonth th.today{
+ border: 1px solid gray;
+ color: #000000;
+ text-align: center;
+ cursor: pointer; 
+}
+/*--------------------------------------------------------*/
+
+.daysofweek{
+ color: #000000;
+ text-align: center;
+}
+
+.day{
+ color: black;
+ text-align: center;
+}
+
+td.day:hover{
+	color:white;
+	background-color : black;
+}
+
+.currentday {
+ border: 1px solid #0052A3;
+ color: #0052A3;
+ text-align: center;
+}
+
+td.currentday:hover {
+	color:white;
+	background-color : #0052A3;
+}
