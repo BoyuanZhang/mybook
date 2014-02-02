@@ -1,7 +1,9 @@
 /*Not sure what units of measurement to use yet, px vs em vs rem*/
+.calendar {
+	width: 100%;
+}
 .calendar td{
  padding: 25px;
- width: 100px;
 }
 
 .premonth{
