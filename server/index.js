@@ -1,13 +1,10 @@
 var express = require( 'express'),
 	config = require( '../config'),
 	view = require( './routes/view'),
-	hbs = require( 'hbs');
 	app = express();
 
 function start() {
 	app.configure( function () {
-		app.set( 'view engine', 'html' );
-		app.engine( 'html', hbs.__express);
 		app.use( express.static( 'client' ) );
 	});
 	

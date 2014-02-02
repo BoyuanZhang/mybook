@@ -40,8 +40,11 @@ td.premonth{
 /*--------------------------------------------------------*/
 
 .daysofweek{
- color: #000000;
  text-align: center;
+}
+
+.daysofweek td{
+	color: #000000;
 }
 
 .day{
