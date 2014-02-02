@@ -1,18 +1,22 @@
 /*Not sure what units of measurement to use yet, px vs em vs rem*/
+
+html {
+	font-family: Tahoma;
+}
 .calendar {
 	width: 100%;
 }
 .calendar td {
 	padding: 25px;
 }
-
 .premonth {
-	color:gray;
-	text-align:center;
+	color: gray;
+	text-align: center;
 }
 
 /*Haven't decided how to differentiate these headers yet*/
 /*--------------------------------------------------------*/
+
 .currentmonth > * {
 	border: 1px solid gray;
 	color: #000000;
