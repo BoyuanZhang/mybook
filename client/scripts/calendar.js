@@ -38,15 +38,11 @@ function Calendar( month, year) {
 	//Are month and year valid?
 	this.month = (isNaN(month) || month == null ) ? currentDate.getMonth() : month;
 	this.year = (isNaN(year) || year == null ) ? currentDate.getFullYear() : year;
-	this.daysInWeek1 = new Array();
-	this.daysInWeek2 = new Array();
-	this.daysInWeek3 = new Array();
-	this.daysInWeek4 = new Array();
-	this.daysInWeek5 = new Array();
-	this.daysInWeek6 = new Array();
-	
-	//container to index all the weeks for cleaner traversals of week rows
-	this.weeks = [ this.daysInWeek1, this.daysInWeek2, this.daysInWeek3, this.daysInWeek4, this.daysInWeek5, this.daysInWeek6];
+	this.weeks = [];
+	for(var i = 1; i < 7; ++i){
+		this["daysInWeek"+i]= [];
+		this.weeks.push(this["daysInWeek"+i]);
+	}
 };
 
 Calendar.prototype.compileCalendar = function() {
