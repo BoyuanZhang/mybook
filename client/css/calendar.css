@@ -5,12 +5,8 @@
 .calendar td {
 	padding: 25px;
 }
-.premonth {
-	color: gray;
-	text-align: center;
-}
-/*Haven't decided how to differentiate these headers yet*/
 
+/*Haven't decided how to differentiate these headers yet*/
 /*--------------------------------------------------------*/
 
 .currentmonth > * {
