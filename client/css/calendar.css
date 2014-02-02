@@ -4,34 +4,34 @@
  width: 100px;
 }
 
-td.premonth{
+.premonth{
  color: gray;
  text-align: center;
 }
 
 /*Haven't decided how to differentiate these headers yet*/
 /*--------------------------------------------------------*/
-.currentmonth th.month{
+.currentmonth .month{
  border: 1px solid gray;
  color: #000000;
  text-align: center;
 }
 
-.currentmonth th.prevmonth{
- border: 1px solid gray;
- color: #000000;
- text-align: center;
- cursor: pointer;
-}
-
-.currentmonth th.nextmonth{
+.currentmonth .prevmonth{
  border: 1px solid gray;
  color: #000000;
  text-align: center;
  cursor: pointer;
 }
 
-.currentmonth th.today{
+.currentmonth .nextmonth{
+ border: 1px solid gray;
+ color: #000000;
+ text-align: center;
+ cursor: pointer;
+}
+
+.currentmonth .today{
  border: 1px solid gray;
  color: #000000;
  text-align: center;
@@ -43,7 +43,7 @@ td.premonth{
  text-align: center;
 }
 
-.daysofweek td{
+.daysofweek .dayofweek{
 	color: #000000;
 }
 
@@ -52,7 +52,7 @@ td.premonth{
  text-align: center;
 }
 
-td.day:hover{
+.day:hover{
 	color:white;
 	background-color : black;
 }
@@ -63,7 +63,7 @@ td.day:hover{
  text-align: center;
 }
 
-td.currentday:hover {
+.currentday:hover {
 	color:white;
 	background-color : #0052A3;
 }
