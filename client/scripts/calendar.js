@@ -38,7 +38,6 @@ function Calendar( month, year) {
 	//Are month and year valid?
 	this.month = (isNaN(month) || month == null ) ? currentDate.getMonth() : month;
 	this.year = (isNaN(year) || year == null ) ? currentDate.getFullYear() : year;
-	
 	this.daysInWeek1 = new Array();
 	this.daysInWeek2 = new Array();
 	this.daysInWeek3 = new Array();
@@ -47,7 +46,7 @@ function Calendar( month, year) {
 	this.daysInWeek6 = new Array();
 	
 	//container to index all the weeks for cleaner traversals of week rows
-	this.weekContainer = [ this.daysInWeek1, this.daysInWeek2, this.daysInWeek3, this.daysInWeek4, this.daysInWeek5, this.daysInWeek6];
+	this.weeks = [ this.daysInWeek1, this.daysInWeek2, this.daysInWeek3, this.daysInWeek4, this.daysInWeek5, this.daysInWeek6];
 };
 
 Calendar.prototype.compileCalendar = function() {
@@ -96,14 +95,14 @@ Calendar.prototype.compileCalendar = function() {
 		if( currentDay+1 == currentDate.getDate() ) {
 			//only set the current day cell if we, are in the current month/year
 			if( this.month == currentDate.getMonth() && this.year == currentDate.getFullYear() ) {
-				this.weekContainer[currentWeek].push( DayFactory( true, (currentDay+1), true));
+				this.weeks[currentWeek].push( DayFactory( true, (currentDay+1), true));
 				calendarTable.rows[2+currentWeek].cells[((currentDay + startingDay) % 7)].className = 'currentday';
 			}
 			else
-				this.weekContainer[currentWeek].push( DayFactory( true, (currentDay+1)));
+				this.weeks[currentWeek].push( DayFactory( true, (currentDay+1)));
 		}
 		else
-			this.weekContainer[currentWeek].push( DayFactory( true, (currentDay+1)));
+			this.weeks[currentWeek].push( DayFactory( true, (currentDay+1)));
 			
 		currentDay++;
 	}
@@ -111,9 +110,9 @@ Calendar.prototype.compileCalendar = function() {
 
 Calendar.prototype.resetDays = function() {
 	//clear all days in the current calendar
-	for( var i = 0; i < this.weekContainer.length; i++) {
-		while( this.weekContainer[i].length > 0 )
-			this.weekContainer[i].pop();
+	for( var i = 0; i < this.weeks.length; i++) {
+		while( this.weeks[i].length > 0 )
+			this.weeks[i].pop();
 	}
 };
 
