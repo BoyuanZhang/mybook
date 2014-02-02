@@ -1,153 +1,174 @@
 var calendarDefaults = {
-	days : ['Monday', 'Tuesday','Wednesday', 'Thursday','Friday', 'Saturday', 'Sunday'],
+	days : ['Sunday', 'Monday','Tuesday', 'Wednesday','Thursday', 'Friday', 'Saturday'],
 	months: [ 'January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December' ],		
 	daysInMonth : [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31]
 };
+
+rivets.configure( {
+	adapter: {
+		subscribe: function(obj, keypath, callback){
+			watch( obj, keypath, callback )
+		},
+		unsubscribe: function( obj, keypath, callback){
+			unwatch( obj, keypath, callback)
+		},
+		read: function(obj, keypath){
+			return obj[keypath]
+		},
+		publish: function(obj, keypath, value){
+			obj[keypath] = value
+		},
+	}
+})
 
 //For first initialization, we go to current date
 var cal,
 	currentDate = new Date();
 
-function calendar( month, year) {
+function DayFactory( inmonth, dayofmonth, iscurrentday )  {
+	var day = {
+		dayOfMonth : dayofmonth,
+		inMonth : inmonth,
+		isCurrentDay : iscurrentday
+	}	
+	return day;
+}
+	
+function Calendar( month, year) {
 	//Are month and year valid?
 	this.month = (isNaN(month) || month == null ) ? currentDate.getMonth() : month;
 	this.year = (isNaN(year) || year == null ) ? currentDate.getFullYear() : year;
-	this.calendarHTML = "";
-}
+	
+	this.daysInWeek1 = new Array();
+	this.daysInWeek2 = new Array();
+	this.daysInWeek3 = new Array();
+	this.daysInWeek4 = new Array();
+	this.daysInWeek5 = new Array();
+	this.daysInWeek6 = new Array();
+	
+	//container to index all the weeks for cleaner traversals of week rows
+	this.weekContainer = [ this.daysInWeek1, this.daysInWeek2, this.daysInWeek3, this.daysInWeek4, this.daysInWeek5, this.daysInWeek6];
+};
 
-calendar.prototype.compileCalendarHTML = function() {
-	var firstDayOfMonth = new Date(this.year, this.month, 1);
-	var startingDay = firstDayOfMonth.getDay();
+Calendar.prototype.compileCalendar = function() {
+	this.monthText = calendarDefaults.months[this.month];
+	this.resetDays();
+
+	var firstDayOfMonth = new Date(this.year, this.month, 1),
+		startingDay = firstDayOfMonth.getDay(),
+		monthLength = calendarDefaults.daysInMonth[ this.month];
 	
-	var monthLength = calendarDefaults.daysInMonth[ this.month];
-	
-	//account for leap year
-	if( currentDate.getMonth == 1 ){
+		//account for leap year
+	if( this.month == 1 ){
 		if( ( this.year % 4 == 0 && this.year % 100!= 0) || this.year % 400 == 0 )
 			monthLength = 29;
 	}
-	
-	var monthName = calendarDefaults.months[ this.month ];
-	
-	//Build calendar header html
-	var headerCalendarHTML = "<table class='calendar'> <tr class='currentmonth'>" +
-							"<th class = 'prevmonth' onclick = 'prevMonth()'> Previous </th>" +
-							"<th class = 'month'>" + monthName +" "+ this.year +"</th>"+
-							"<th class = 'nextmonth' onclick = 'nextMonth()'> Next </th></tr>";
-							
-	//Add today cell
-	headerCalendarHTML += "<tr class = 'currentmonth'><th class = 'today' onclick = 'today()'>Today</th></tr>";
-							
-	headerCalendarHTML +="<tr class='daysofweek'>";
-	for( var i = 0; i < 7; i++ )
-		headerCalendarHTML+= "<td>" +calendarDefaults.days[i] +"</td>";
-	headerCalendarHTML+= "</tr>";
-	
-	//Build inner calendar html
-	//keep track of the current day,
-	var innerCalendarHTML = "",
-		currentDay = 0;
+	//we now need the length of the previous month, also account for leap year
+	var prevMonthLength;
+	if( this.month == 0 )
+		prevMonthLength = calendarDefaults.daysInMonth[ 11 ];
+	else
+		prevMonthLength = calendarDefaults.daysInMonth[ this.month - 1];
 		
-	//Fill in cells not part of the current month in the first row
-	for( var i = 0; i < startingDay; i++)
-		innerCalendarHTML += "<td class='premonth'>" + (32 - (startingDay - i)) + "</td>";
-	
+	if( this.month == 2 )
+		if( ( this.year % 4 == 0 && this.year % 100!= 0) || this.year % 400 == 0 )
+			prevMonthLength = 29;
+
+		
+	//get a handle to the DOM, so we may change the class of the pre month days, and the current day, also remember
+	//the current row within the calendar starts at 2, to account for the current month header, and the days of the week
+	var calendarTable = document.getElementById('calendarTable');
+	//take care of all pre month days, in week 1
+	for( var i = 0; i < startingDay; i++) {
+		this.daysInWeek1.push( DayFactory( false, ((prevMonthLength +1) - (startingDay - i))) );
+		calendarTable.rows[2].cells[i].className = 'premonth';
+	}
+
+	var currentDay = 0,
+		currentWeek = 0;
+
 	while( currentDay < monthLength )
 	{
 		if( (currentDay+startingDay) % 7 == 0 )
-			innerCalendarHTML += "</tr><tr>";
-		
+			currentWeek++;
 		//check if the current day we are processing is equal to the current date
 		//Don't forget to add 1 to the current day, since the current day is zero indexed
 		if( currentDay+1 == currentDate.getDate() ) {
 			//only set the current day cell if we, are in the current month/year
-			if( this.month == currentDate.getMonth() && this.year == currentDate.getFullYear() )
-				innerCalendarHTML += "<td class='currentday'>"+(currentDay+1)+"</td>";
+			if( this.month == currentDate.getMonth() && this.year == currentDate.getFullYear() ) {
+				this.weekContainer[currentWeek].push( DayFactory( true, (currentDay+1), true));
+				calendarTable.rows[2+currentWeek].cells[((currentDay + startingDay) % 7)].className = 'currentday';
+			}
 			else
-				innerCalendarHTML += "<td class = 'day'>"+(currentDay+1)+"</td>";
+				this.weekContainer[currentWeek].push( DayFactory( true, (currentDay+1)));
 		}
 		else
-			innerCalendarHTML += "<td class = 'day'>"+(currentDay+1)+"</td>";
+			this.weekContainer[currentWeek].push( DayFactory( true, (currentDay+1)));
 			
 		currentDay++;
 	}
-	
-	//Finnished with the inner calendar, time to put it all together
-	
-	this.calendarHTML = headerCalendarHTML;
-	this.calendarHTML += "<tr>";
-	this.calendarHTML += innerCalendarHTML;
-	this.calendarHTML += "</tr></table>";
 };
 
-calendar.prototype.getCalendar = function() {
-	if( this.calendarHTML )
-		return this.calendarHTML;
-	else
-		return "";
-}
-
-//getter's for the current month, current year
-calendar.prototype.getMonth = function() {
-	var month = (isNaN(this.month) || this.month == null ) ? currentDate.getMonth() : this.month;
-	
-	return month;
-}
-
-calendar.prototype.getYear = function() {
-	var year = (isNaN(this.year) || this.year == null ) ? currentDate.getFullYear() : this.year;
-	
-	return year;
-}
-
-//Initialization call from client browser, this should only be called once per page load
-function init() {
-	cal = new calendar();
-	compileAndShow();
+Calendar.prototype.resetDays = function() {
+	//clear all days in the current calendar
+	for( var i = 0; i < this.weekContainer.length; i++) {
+		while( this.weekContainer[i].length > 0 )
+			this.weekContainer[i].pop();
+	}
 };
 
 function prevMonth() {
-	//check for edge case
-	var currentMonth = cal.getMonth(),
-		currentYear = cal.getYear();
 	//if current month is January, set it to December
-	if( currentMonth == 0 ) {
-		currentMonth = 11;
-		currentYear -= 1;
+	if( cal.month == 0 ) {
+		cal.month = 11;
+		cal.year -= 1;
 	}
 	else
-		currentMonth -= 1;
+		cal.month -= 1;
 		
-	cal = new calendar( currentMonth, currentYear );
-	compileAndShow();
+	cal.compileCalendar();
 };
 
 function nextMonth() {
-	//check for edge case
-	var currentMonth = cal.getMonth(),
-		currentYear = cal.getYear();
-	
-	if( currentMonth == 11 ) {
-		currentMonth = 0;
-		currentYear += 1;
+	if( cal.month == 11 ) {
+		cal.month  = 0;
+		cal.year += 1;
 	}
 	else
-		currentMonth += 1;
-		
-	cal = new calendar( currentMonth, currentYear );
-	compileAndShow();
+		cal.month  += 1;
+	
+	cal.compileCalendar();
+};
+function today() {
+	cal.month = currentDate.getMonth();
+	cal.year = currentDate.getFullYear();
+	
+	cal.compileCalendar();
 };
 
-function today() {
-	var currentMonth = currentDate.getMonth(),
-		currentYear = currentDate.getFullYear();
-	
-	cal = new calendar( currentMonth, currentYear );
-	compileAndShow();
-}
+cal = new Calendar()
+function init() {
+	cal.compileCalendar();
+	addEventDelegates();
+};
 
-function compileAndShow()
-{
-	cal.compileCalendarHTML();
-	document.getElementById( 'calendar' ).innerHTML = cal.getCalendar();
-}
+function addEventDelegates() {
+	document.getElementById( 'calendarTable' ).addEventListener( "click", dayClickEvent );
+};
+
+function dayClickEvent(e) {
+	//e is clicked element
+	if( e.target && e.target.nodeName == "TD" ) {
+		if( e.target.className == "day" || e.target.className == "currentday" )
+			alert(e.target.innerHTML);
+	}
+};
+
+//bind rivets to calendar
+rivets.bind(
+	document.getElementById( 'calendarTable' ),
+	{
+		calendar : cal,
+		daysInWeek : calendarDefaults.days
+	}
+);

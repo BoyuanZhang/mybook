@@ -5,8 +5,40 @@
 		<link href = "../css/calendar.css" rel = "stylesheet">
 	</head>
 	<body>
-		<div id = "calendar"> </div>
+		<div id = "calendar"> 
+			<table id = "calendarTable" class = "calendar">
+				<tr class='currentmonth'>
+					<th class = 'prevmonth' onclick = "prevMonth()"> Previous </th>
+					<th class = 'month'>{calendar.monthText} {calendar.year}</th>
+					<th class = 'nextmonth' onclick = "nextMonth()"> Next </th>
+					<th class = 'today' onclick = "today()"> Today </th>
+				</tr>
+				<tr class = 'daysofweek'>
+					<td rv-each-dayofweek = "daysInWeek">{dayofweek}</td>
+				</tr>
+				<tr>
+				<td class = 'day' rv-each-dayinweek = "calendar.daysInWeek1"> {dayinweek.dayOfMonth} </td>
+				</tr>
+				<tr>
+				<td class = 'day' rv-each-dayinweek = "calendar.daysInWeek2"> {dayinweek.dayOfMonth} </td>
+				</tr>
+				<tr>
+				<td class = 'day' rv-each-dayinweek = "calendar.daysInWeek3"> {dayinweek.dayOfMonth} </td>
+				</tr>
+				<tr>
+				<td class = 'day' rv-each-dayinweek = "calendar.daysInWeek4"> {dayinweek.dayOfMonth} </td>
+				</tr>
+				<tr>
+				<td class = 'day' rv-each-dayinweek = "calendar.daysInWeek5"> {dayinweek.dayOfMonth} </td>
+				</tr>
+				<tr>
+				<td class = 'day' rv-each-dayinweek = "calendar.daysInWeek6"> {dayinweek.dayOfMonth} </td>
+				</tr>
+			</table>
+		</div>
 		
+		<script src = "../scripts/watch.min.js"></script>
+		<script src = "../scripts/rivets.min.js"></script>
 		<script src = "../scripts/calendar.js" ></script>
 		<script>init();</script>
 	</body>
