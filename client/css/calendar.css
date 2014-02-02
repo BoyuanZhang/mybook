@@ -13,31 +13,18 @@
 
 /*Haven't decided how to differentiate these headers yet*/
 /*--------------------------------------------------------*/
-.currentmonth .month{
- border: 1px solid gray;
- color: #000000;
- text-align: center;
+.currentmonth > * {
+	 border: 1px solid gray;
+	 color: #000000;
+	 text-align: center;
+}
+.currentmonth > *:hover {
+	background: grey;
+	background: rgba(0,0,0,0.1);
 }
 
-.currentmonth .prevmonth{
- border: 1px solid gray;
- color: #000000;
- text-align: center;
- cursor: pointer;
-}
-
-.currentmonth .nextmonth{
- border: 1px solid gray;
- color: #000000;
- text-align: center;
- cursor: pointer;
-}
-
-.currentmonth .today{
- border: 1px solid gray;
- color: #000000;
- text-align: center;
- cursor: pointer; 
+.currentmonth .today, .currentmonth .nextmonth, .currentmonth .prevmonth{
+	 cursor: pointer;
 }
 /*--------------------------------------------------------*/
 
