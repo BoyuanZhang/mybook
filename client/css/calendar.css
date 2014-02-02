@@ -6,9 +6,13 @@
 	padding: 25px;
 }
 
+.premonth {
+	color:gray;
+	text-align:center;
+}
+
 /*Haven't decided how to differentiate these headers yet*/
 /*--------------------------------------------------------*/
-
 .currentmonth > * {
 	border: 1px solid gray;
 	color: #000000;
