@@ -2,57 +2,53 @@
 .calendar {
 	width: 100%;
 }
-.calendar td{
- padding: 25px;
+.calendar td {
+	padding: 25px;
 }
-
-.premonth{
- color: gray;
- text-align: center;
+.premonth {
+	color: gray;
+	text-align: center;
 }
-
 /*Haven't decided how to differentiate these headers yet*/
+
 /*--------------------------------------------------------*/
+
 .currentmonth > * {
-	 border: 1px solid gray;
-	 color: #000000;
-	 text-align: center;
+	border: 1px solid gray;
+	color: #000000;
+	text-align: center;
 }
 .currentmonth > *:hover {
 	background: grey;
-	background: rgba(0,0,0,0.1);
+	background: rgba(0, 0, 0, 0.1);
 }
-
-.currentmonth .today, .currentmonth .nextmonth, .currentmonth .prevmonth{
-	 cursor: pointer;
+.currentmonth .today,
+.currentmonth .nextmonth,
+.currentmonth .prevmonth {
+	cursor: pointer;
 }
 /*--------------------------------------------------------*/
 
-.daysofweek{
- text-align: center;
+.daysofweek {
+	text-align: center;
 }
-
-.daysofweek .dayofweek{
+.daysofweek .dayofweek {
 	color: #000000;
 }
-
-.day{
- color: black;
- text-align: center;
+.day {
+	color: black;
+	text-align: center;
 }
-
-.day:hover{
-	color:white;
-	background-color : black;
+.day:hover {
+	color: white;
+	background-color: black;
 }
-
 .currentday {
- border: 1px solid #0052A3;
- color: #0052A3;
- text-align: center;
+	border: 1px solid #0052A3;
+	color: #0052A3;
+	text-align: center;
 }
-
 .currentday:hover {
-	color:white;
-	background-color : #0052A3;
+	color: white;
+	background-color: #0052A3;
 }
