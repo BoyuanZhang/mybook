@@ -149,7 +149,7 @@ function today() {
 cal = new Calendar()
 function init() {
 	cal.compileCalendar();
-	addEventDelegates();
+	// addEventDelegates();
 };
 
 function addEventDelegates() {
@@ -169,6 +169,7 @@ rivets.bind(
 	document.getElementById( 'calendarTable' ),
 	{
 		calendar : cal,
-		daysInWeek : calendarDefaults.days
+		daysInWeek : calendarDefaults.days,
+		dayClick: dayClickEvent
 	}
 );
