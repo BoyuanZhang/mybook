@@ -12,6 +12,7 @@
 					<th class = 'month'>{calendar.monthText} {calendar.year}</th>
 					<th class = 'nextmonth' onclick = "nextMonth()"> Next </th>
 					<th class = 'today' onclick = "today()"> Today </th>
+					<th onclick = "showSettings()">Settings</th>
 				</tr>
 				<tr class = 'daysofweek'>
 					<td rv-each-dayofweek = "daysInWeek" class="dayofweek">{dayofweek}</td>
@@ -20,6 +21,10 @@
 					<td class="day" rv-each-day="week" rv-on-click="dayClick" rv-class="day.dayOfMonth">{day.dayOfMonth}</td>
 				</tr>
 			</table>
+			<div class="modal" id="settings">
+				<span class="close" title="close" onclick="showSettings()"></span>
+				Modal content here, I guess.
+			</div>
 		</div>
 		
 		<script src = "../scripts/watch.min.js"></script>

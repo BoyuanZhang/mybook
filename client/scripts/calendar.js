@@ -156,6 +156,10 @@ function dayClickEvent(e) {
 	}
 };
 
+function showSettings(){
+	document.getElementById("settings").classList.toggle("active");
+}
+
 //bind rivets to calendar
 rivets.binders.class = function(el, value){
 	el.classList.add(value);
