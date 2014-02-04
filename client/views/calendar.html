@@ -17,7 +17,7 @@
 					<td rv-each-dayofweek = "daysInWeek" class="dayofweek">{dayofweek}</td>
 				</tr>
 				<tr class="week" rv-each-week="calendar.weeks">
-					<td class="day" rv-each-day="week" rv-on-click="dayClick">{day.dayOfMonth}</td>
+					<td class="day" rv-each-day="week" rv-on-click="dayClick" rv-class="day.dayOfMonth">{day.dayOfMonth}</td>
 				</tr>
 			</table>
 		</div>
