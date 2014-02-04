@@ -150,6 +150,12 @@ function showSettings(){
 	document.getElementById("settings").classList.toggle("active");
 }
 
+document.getElementById("modalbg").onclick = function(){
+	var act = document.querySelector(".modal.active");
+	act.classList.remove("active");
+}
+
+
 //bind rivets to calendar
 rivets.binders.class = function(el, value){
 	el.classList.add(value);
