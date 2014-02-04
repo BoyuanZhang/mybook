@@ -141,11 +141,6 @@ cal = new Calendar()
 
 function init() {
 	cal.compileCalendar();
-	// addEventDelegates();
-};
-
-function addEventDelegates() {
-	document.getElementById('calendarTable').addEventListener("click", dayClickEvent);
 };
 
 function dayClickEvent(e) {
