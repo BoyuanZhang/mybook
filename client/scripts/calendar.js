@@ -25,11 +25,10 @@ rivets.configure({
 var cal,
 	currentDate = new Date();
 
-function DayFactory(inmonth, dayofmonth, iscurrentday) {
+function DayFactory(dayofmonth, type) {
 	var day = {
 		dayOfMonth: dayofmonth,
-		inMonth: inmonth,
-		isCurrentDay: iscurrentday
+		dayType : type
 	}
 	return day;
 }
@@ -72,12 +71,9 @@ Calendar.prototype.compileCalendar = function () {
 
 		//get a handle to the DOM, so we may change the class of the pre month days, and the current day, also remember
 		//the current row within the calendar starts at 2, to account for the current month header, and the days of the week
-	var calendarTable = document.getElementById('calendarTable');
 	//take care of all pre month days, in week 1
-	for (var i = 0; i < startingDay; i++) {
-		this.daysInWeek1.push(DayFactory(false, ((prevMonthLength + 1) - (startingDay - i))));
-		calendarTable.rows[2].cells[i].className = 'premonth';
-	}
+	for (var i = 0; i < startingDay; i++)
+		this.daysInWeek1.push(DayFactory(((prevMonthLength + 1) - (startingDay - i)), 'premonth'));
 
 	var currentDay = 0,
 		currentWeek = 0;
@@ -89,13 +85,12 @@ Calendar.prototype.compileCalendar = function () {
 		//Don't forget to add 1 to the current day, since the current day is zero indexed
 		if (currentDay + 1 == currentDate.getDate()) {
 			//only set the current day cell if we, are in the current month/year
-			if (this.month == currentDate.getMonth() && this.year == currentDate.getFullYear()) {
-				this.weeks[currentWeek].push(DayFactory(true, (currentDay + 1), true));
-				calendarTable.rows[2 + currentWeek].cells[((currentDay + startingDay) % 7)].className = 'currentday';
-			} else
-				this.weeks[currentWeek].push(DayFactory(true, (currentDay + 1)));
+			if (this.month == currentDate.getMonth() && this.year == currentDate.getFullYear())
+				this.weeks[currentWeek].push(DayFactory((currentDay + 1), 'currentday'));
+			else
+				this.weeks[currentWeek].push(DayFactory((currentDay + 1), 'day'));
 		} else
-			this.weeks[currentWeek].push(DayFactory(true, (currentDay + 1)));
+			this.weeks[currentWeek].push(DayFactory((currentDay + 1), 'day'));
 
 		currentDay++;
 	}
