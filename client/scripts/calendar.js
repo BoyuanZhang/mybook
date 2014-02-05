@@ -4,6 +4,8 @@ var calendarDefaults = {
 	daysInMonth: [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31]
 };
 
+var priorityDefaults = ['normal', 'low', 'high'];
+
 rivets.configure({
 	adapter: {
 		subscribe: function (obj, keypath, callback) {
@@ -21,9 +23,14 @@ rivets.configure({
 	}
 })
 
-//For first initialization, we go to current date
+//Set variables used for this script,
+//For first initialization, we go to current date,
+//User may only edit one task list at a time so we re-use the tasklist for each editing modal
+//Get DOM handles to taskedit and taskview
 var cal,
-	currentDate = new Date();
+	currentDate = new Date(),
+	taskList = [],
+	taskEdit = document.getElementById("taskEdit");
 
 function DayFactory(dayofmonth, type) {
 	var day = {
@@ -31,6 +38,16 @@ function DayFactory(dayofmonth, type) {
 		dayType : type
 	}
 	return day;
+}
+
+function TaskFactory(sum) {
+	var task = {
+		id : 0,
+		complete: false,
+		summary: sum,
+		priority: priorityDefaults[0]
+	}
+	return task;
 }
 
 function Calendar(month, year) {
@@ -68,9 +85,6 @@ Calendar.prototype.compileCalendar = function () {
 		if ((this.year % 4 == 0 && this.year % 100 != 0) || this.year % 400 == 0)
 			prevMonthLength = 29;
 
-
-		//get a handle to the DOM, so we may change the class of the pre month days, and the current day, also remember
-		//the current row within the calendar starts at 2, to account for the current month header, and the days of the week
 	//take care of all pre month days, in week 1
 	for (var i = 0; i < startingDay; i++)
 		this.daysInWeek1.push(DayFactory(((prevMonthLength + 1) - (startingDay - i)), 'premonth'));
@@ -141,13 +155,76 @@ function init() {
 function dayClickEvent(e) {
 	//e is clicked element
 	if (e.target && e.target.nodeName == "TD") {
-		if (e.target.className == "day" || e.target.className == "currentday")
+		if (e.target.className == "day" || e.target.className == "currentday") {
+			showTaskView();
 			alert(e.target.innerHTML);
+		}
 	}
 };
 
 function showSettings(){
 	document.getElementById("settings").classList.toggle("active");
+}
+
+function showTaskView() {
+	document.getElementById("taskView").classList.toggle("active");
+}
+
+function showTaskEdit() {
+	//Modal for the task edit and task view, should be different
+	//Currently the two ways of opening edit mode, are to click the edit button, or to double click the view modal
+	taskEdit.classList.toggle("active");
+}
+
+function addTask() {
+	//get task summary user entered, as well as priority of task
+	var summary;
+		
+	for( var i = 0; i < taskEdit.childNodes.length; i++ ) {
+		if( taskEdit.childNodes[i].className == "taskInput" ) {
+			summary = taskEdit.childNodes[i].value;
+			break;
+		}
+	}
+	
+	//set id of the new task so we can reference it in the future easily
+	var item = TaskFactory(summary);
+	var id = taskList.push( item ) - 1;
+	item.id = id;
+}
+
+//Save changes
+function applyTaskList() {
+
+}
+
+//remove item from our list 
+/*Note** Place-holder code for now ... Not sure how to handle removal of task items yet, because we have to take into consideration
+drag and drop of tasks, sorting (if we decide to add a time input) etc... Also not sure how rivets.js handles
+when re-indexing of items in the binded list occurs yet*/
+function removeTaskEvent(e) {
+	//get the ul node, then loop through each of it's children until you find 
+	//the li index
+	
+	//This function should only be called after clicking a remove anchor inside of a list element
+	var index = 0,
+		list = e.target.parentNode,
+		listParent = list.parentNode;
+	
+	for( var i = 0; i < listParent.children.length; i++) {
+		if( listParent.children[i].nodeName == "LI" ) {
+			if( listParent.children[i] === list ) {
+				break;
+			}
+			else
+				index++;
+		}
+	}
+	
+	taskList.splice( index, 1 );
+	//decrement all list ids after the removed index by 1, to avoid duplicate ids 
+	for( var i = index; i < taskList.length; i ++)
+		taskList[i].id--;
 }
 
 //bind rivets to calendar
@@ -161,3 +238,13 @@ rivets.bind(
 		dayClick: dayClickEvent
 	}
 );
+
+rivets.bind(
+	taskEdit, {
+		tasks: taskList,
+		priorities: priorityDefaults,
+		removeTask : removeTaskEvent
+	}
+);
+
+

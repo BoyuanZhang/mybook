@@ -1,5 +1,5 @@
 ###MyB (My Book) 
-####by Boyuan Zhang
+####by Boyuan Zhang and Georgiy Shibaev
 *A simple interactive personal planner*
 <p>runs on Node.js, uses express and possibly handlebars for a templating engine.</p>
 

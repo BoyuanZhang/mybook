@@ -21,9 +21,36 @@
 					<td rv-each-day="week" rv-on-click="dayClick" rv-class="day.dayType">{day.dayOfMonth}</td>
 				</tr>
 			</table>
+			
 			<div class="modal" id="settings">
 				<span class="close" title="close" onclick="showSettings()"></span>
-				Modal content here, I guess.
+				Settings
+			</div>
+			
+			<div class="modal" id="taskView" ondblclick="showTaskEdit()">
+				<h3>Task View</h3>
+				<span class="close" title="close" onclick="showTaskView()"></span>
+				<button name = "Edit" onclick = "showTaskEdit()">Edit</button>
+			</div>
+			
+			<div class="modal" id="taskEdit">
+				<span class="close" title="close" onclick="showTaskEdit()"></span>
+				<h3>Task Editing</h3>
+				<input type = "text" class = "taskInput" placeholder = "Enter task description" />
+
+				<button name = "Add" onclick = "addTask()">Add Task</button>
+				
+				<ul>
+					<li rv-each-task = "tasks">
+						<input type = "checkbox">
+						<input type = "text" rv-value = "task.summary">
+						<select rv-value = "task.priority"> 
+							<option rv-each-priority = "priorities" rv-value = "priority">{priority}</option>
+						</select>
+						<a href = "#" rv-on-click = "removeTask">x</a>
+					</li>
+				</ul>
+				<button name = "Apply" onclick = "applyTaskList()"> Apply </button>
 			</div>
 		</div>
 		
