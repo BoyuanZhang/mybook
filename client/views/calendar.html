@@ -41,7 +41,7 @@
 				<button name = "Add" onclick = "addTask()">Add Task</button>
 				
 				<ul>
-					<li rv-each-task = "tasks">
+					<li rv-each-task = "tasks" rv-value = "task.id">
 						<input type = "checkbox">
 						<input type = "text" rv-value = "task.summary">
 						<select rv-value = "task.priority"> 

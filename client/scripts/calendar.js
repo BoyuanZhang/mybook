@@ -174,6 +174,10 @@ function showTaskEdit() {
 	//Modal for the task edit and task view, should be different
 	//Currently the two ways of opening edit mode, are to click the edit button, or to double click the view modal
 	taskEdit.classList.toggle("active");
+	
+	//if the task edit modal was closed, we remove all elements from the task edit list
+	while( taskList.length > 0 )
+		taskList.pop();
 }
 
 function addTask() {
@@ -199,32 +203,35 @@ function applyTaskList() {
 }
 
 //remove item from our list 
-/*Note** Place-holder code for now ... Not sure how to handle removal of task items yet, because we have to take into consideration
-drag and drop of tasks, sorting (if we decide to add a time input) etc... Also not sure how rivets.js handles
-when re-indexing of items in the binded list occurs yet*/
 function removeTaskEvent(e) {
 	//get the ul node, then loop through each of it's children until you find 
-	//the li index
+	//the target child, then get its id (value)
 	
 	//This function should only be called after clicking a remove anchor inside of a list element
-	var index = 0,
+	var id = 0,
 		list = e.target.parentNode,
 		listParent = list.parentNode;
 	
+	//get the id 
 	for( var i = 0; i < listParent.children.length; i++) {
 		if( listParent.children[i].nodeName == "LI" ) {
 			if( listParent.children[i] === list ) {
+				id = parseInt(listParent.children[i].value);
 				break;
 			}
-			else
-				index++;
 		}
 	}
 	
-	taskList.splice( index, 1 );
-	//decrement all list ids after the removed index by 1, to avoid duplicate ids 
-	for( var i = index; i < taskList.length; i ++)
-		taskList[i].id--;
+	//find and remove the item in our task list, while decrementing any current ids
+	//larger than this id by 1, keep id's within range of the task list length
+	var index = 0;
+	for( var i = 0; i < taskList.length; i++) {
+		if( taskList[i].id == id )
+			index = i;
+		else if( taskList[i].id > id )
+			taskList[i].id--;
+	}
+	taskList.splice(index, 1);
 }
 
 //bind rivets to calendar
