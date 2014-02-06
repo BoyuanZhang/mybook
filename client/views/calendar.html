@@ -35,7 +35,7 @@
 			
 			<div class="modal" id="taskEdit">
 				<span class="close" title="close" onclick="showTaskEdit()"></span>
-				<h3>Task Editing</h3>
+				<h3>{selectedDate.string}      Task Editing </h3>
 				<input type = "text" class = "taskInput" placeholder = "Enter task description" />
 
 				<button name = "Add" onclick = "addTask()">Add Task</button>
@@ -50,7 +50,6 @@
 						<a href = "#" rv-on-click = "removeTask">x</a>
 					</li>
 				</ul>
-				<button name = "Apply" onclick = "applyTaskList()"> Apply </button>
 			</div>
 		</div>
 		
