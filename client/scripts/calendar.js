@@ -216,7 +216,7 @@ function removeTaskEvent(e) {
 	for( var i = 0; i < listParent.children.length; i++) {
 		if( listParent.children[i].nodeName == "LI" ) {
 			if( listParent.children[i] === list ) {
-				id = parseInt(listParent.children[i].value);
+				id = parseInt(listParent.children[i].dataset.value);
 				break;
 			}
 		}
