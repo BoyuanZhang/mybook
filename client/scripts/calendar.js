@@ -157,7 +157,6 @@ function dayClickEvent(e) {
 	if (e.target && e.target.nodeName == "TD") {
 		if (e.target.className == "day" || e.target.className == "currentday") {
 			showTaskView();
-			alert(e.target.innerHTML);
 		}
 	}
 };
@@ -234,24 +233,129 @@ function removeTaskEvent(e) {
 	taskList.splice(index, 1);
 }
 
+var dragData = {
+	element: null,
+	divider: null,
+	mouse: 0,
+	offset: 0
+}
+
+function recursiveOffsetLeft(element){
+	if(!element)return 0;
+	var par = element.offsetParent;
+	return element.offsetLeft + (par ? recursiveOffsetLeft(par) : 0);
+}
+
+function recursiveOffsetTop(element){
+	if(!element)return 0;
+	var par = element.offsetParent;
+	return element.offsetTop + (par ? recursiveOffsetTop(par) : 0);
+}
+
+function dragTask(e){
+	var tasks = document.querySelectorAll(".task");
+	dragData = {
+		element:this,
+		index: [].indexOf.call(tasks,this),
+		divider:null,
+		mouse:e.pageY,
+		offset: e.pageY - this.offsetTop,
+		x: recursiveOffsetLeft(this)
+	};
+}
+
+function taskIndex(y){
+	var tasks = document.querySelectorAll(".task");
+	var index;
+	[].forEach.call(tasks,function(el,i){
+		if(
+			el !== dragData.element &&
+			y > recursiveOffsetTop(el) &&
+			y < recursiveOffsetTop(el)+el.offsetHeight
+		) index = i;
+	});
+	if(typeof index === "number"){
+		return index;
+	} else {
+		var index = tasks.length-1;
+		var last = tasks[index];
+		if(last === dragData.element)last = tasks[index--];
+		return last && y > recursiveOffsetTop(last) ? index : 0;
+	}
+}
+
+function taskAt(index){
+	return document.querySelectorAll(".task")[index];
+}
+
+function newTaskY(e,el){
+	return e.pageY - el.offsetHeight /2;
+}
+
+function handleDrag(e){
+	var el = dragData.element;
+	if(el){
+		var rep = document.querySelector(".task.active");
+		if(rep)rep.classList.remove("active");
+		var index = taskIndex(e.pageY);
+		rep= taskAt(index);
+		if(rep)rep.classList.add("active");
+		el.style.position = "fixed";
+		el.style.top = newTaskY(e,el) + "px";
+		el.style.left = dragData.x + "px";
+	}
+}
+
+function relocateTask(e){
+	function moveTask(from, to) {
+		if( to === from ) return;
+		
+		var target = taskList[from];
+		var increment = to < from ? -1 : 1;
+		
+		for(var k = from; k != to; k += increment){
+		taskList[k] = taskList[k + increment];
+		}
+		taskList[to] = target;
+	}
+	
+	var el = dragData.element;
+	if(el){
+		dragData.element = null;
+		var index = [].indexOf.call(
+			document.querySelectorAll(".task"),
+			document.querySelector(".task.active")
+		);
+		
+		[].forEach.call(
+			document.querySelectorAll(".task.active"),function(e){
+				e.classList.remove("active")});
+		taskAt(index).classList.add("active");
+		moveTask(dragData.index,index);
+		el.style.position = "static";
+	}
+}
+
 //bind rivets to calendar
 rivets.binders.class = function(el, value){
 	el.classList.add(value);
 }
 rivets.bind(
-	document.getElementById('calendarTable'), {
+	document.getElementById('calendarTable'),
+	{
 		calendar: cal,
 		daysInWeek: calendarDefaults.days,
-		dayClick: dayClickEvent
+		dayClick: dayClickEvent,
 	}
 );
 
-rivets.bind(
-	taskEdit, {
-		tasks: taskList,
-		priorities: priorityDefaults,
-		removeTask : removeTaskEvent
-	}
-);
+rivets.bind(taskEdit, {
+	tasks: taskList,
+	priorities: priorityDefaults,
+	removeTask : removeTaskEvent,
+	dragTask: dragTask,
+	handleDrag: handleDrag,
+	relocateTask:relocateTask
+});
 
 
