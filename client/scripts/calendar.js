@@ -25,13 +25,19 @@ rivets.configure({
 
 //Set variables used for this script,
 //For first initialization, we go to current date,
+//Selected date string to keep track of the date user is viewing / modifying
 //User may only edit one task list at a time so we re-use the tasklist for each editing modal
 //Get DOM handles to taskedit and taskview
 var cal,
 	currentDate = new Date(),
+	selectedDate = {
+		"string" : "",
+		"day" : 0
+	},
 	taskList = [],
-	taskEdit = document.getElementById("taskEdit");
-
+	taskEdit = document.getElementById("taskEdit"),
+	taskView = document.getElementById("taskView");
+	
 function DayFactory(dayofmonth, type) {
 	var day = {
 		dayOfMonth: dayofmonth,
@@ -156,7 +162,7 @@ function dayClickEvent(e) {
 	//e is clicked element
 	if (e.target && e.target.nodeName == "TD") {
 		if (e.target.className == "day" || e.target.className == "currentday") {
-			showTaskView();
+			showTaskView(e.target.innerHTML);
 		}
 	}
 };
@@ -165,8 +171,14 @@ function showSettings(){
 	document.getElementById("settings").classList.toggle("active");
 }
 
-function showTaskView() {
-	document.getElementById("taskView").classList.toggle("active");
+function showTaskView( day ) {
+	taskView.classList.toggle("active");
+	
+	//if newly opened, we set the day / month / year in the header
+	if( taskView.classList.contains("active") ) {
+		selectedDate.string = day.toString() + " " + calendarDefaults.months[cal.month] + " " + cal.year;
+		selectedDate.day = day;
+	}
 }
 
 function showTaskEdit() {
@@ -175,8 +187,9 @@ function showTaskEdit() {
 	taskEdit.classList.toggle("active");
 	
 	//if the task edit modal was closed, we remove all elements from the task edit list
-	while( taskList.length > 0 )
-		taskList.pop();
+	if( !taskEdit.classList.contains("active"))
+		while( taskList.length > 0 )
+			taskList.pop();
 }
 
 function addTask() {
@@ -215,7 +228,7 @@ function removeTaskEvent(e) {
 	for( var i = 0; i < listParent.children.length; i++) {
 		if( listParent.children[i].nodeName == "LI" ) {
 			if( listParent.children[i] === list ) {
-				id = parseInt(listParent.children[i].value);
+				id = parseInt(listParent.children[i].dataset.value);
 				break;
 			}
 		}
@@ -308,6 +321,8 @@ function handleDrag(e){
 
 function relocateTask(e){
 	function moveTask(from, to) {
+		console.log("Moving task:",arguments);
+		console.log("Original:",taskList.map(function(e){return e.id}));
 		if( to === from ) return;
 		
 		var target = taskList[from];
@@ -317,6 +332,9 @@ function relocateTask(e){
 		taskList[k] = taskList[k + increment];
 		}
 		taskList[to] = target;
+		taskList.push({});
+		taskList.pop();
+		console.log("Sorted:",taskList.map(function(e){return e.id}),"\n");
 	}
 	
 	var el = dragData.element;
@@ -330,7 +348,6 @@ function relocateTask(e){
 		[].forEach.call(
 			document.querySelectorAll(".task.active"),function(e){
 				e.classList.remove("active")});
-		taskAt(index).classList.add("active");
 		moveTask(dragData.index,index);
 		el.style.position = "static";
 	}
@@ -340,16 +357,11 @@ function relocateTask(e){
 rivets.binders.class = function(el, value){
 	el.classList.add(value);
 }
-rivets.bind(
-	document.getElementById('calendarTable'),
-	{
-		calendar: cal,
-		daysInWeek: calendarDefaults.days,
-		dayClick: dayClickEvent,
-	}
-);
-
-rivets.bind(taskEdit, {
+var binding = rivets.bind(document.body, {
+	calendar: cal,
+	daysInWeek: calendarDefaults.days,
+	dayClick: dayClickEvent,
+	selectedDate : selectedDate,
 	tasks: taskList,
 	priorities: priorityDefaults,
 	removeTask : removeTaskEvent,
@@ -357,5 +369,3 @@ rivets.bind(taskEdit, {
 	handleDrag: handleDrag,
 	relocateTask:relocateTask
 });
-
-
