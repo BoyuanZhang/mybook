@@ -4,6 +4,8 @@ var calendarDefaults = {
 	daysInMonth: [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31]
 };
 
+var priorityDefaults = ['normal', 'low', 'high'];
+
 rivets.configure({
 	adapter: {
 		subscribe: function (obj, keypath, callback) {
@@ -21,16 +23,37 @@ rivets.configure({
 	}
 })
 
-//For first initialization, we go to current date
+//Set variables used for this script,
+//For first initialization, we go to current date,
+//Selected date string to keep track of the date user is viewing / modifying
+//User may only edit one task list at a time so we re-use the tasklist for each editing modal
+//Get DOM handles to taskedit and taskview
 var cal,
-	currentDate = new Date();
-
+	currentDate = new Date(),
+	selectedDate = {
+		"string" : "",
+		"day" : 0
+	},
+	taskList = [],
+	taskEdit = document.getElementById("taskEdit"),
+	taskView = document.getElementById("taskView");
+	
 function DayFactory(dayofmonth, type) {
 	var day = {
 		dayOfMonth: dayofmonth,
 		dayType : type
 	}
 	return day;
+}
+
+function TaskFactory(sum) {
+	var task = {
+		id : 0,
+		complete: false,
+		summary: sum,
+		priority: priorityDefaults[0]
+	}
+	return task;
 }
 
 function Calendar(month, year) {
@@ -68,9 +91,6 @@ Calendar.prototype.compileCalendar = function () {
 		if ((this.year % 4 == 0 && this.year % 100 != 0) || this.year % 400 == 0)
 			prevMonthLength = 29;
 
-
-		//get a handle to the DOM, so we may change the class of the pre month days, and the current day, also remember
-		//the current row within the calendar starts at 2, to account for the current month header, and the days of the week
 	//take care of all pre month days, in week 1
 	for (var i = 0; i < startingDay; i++)
 		this.daysInWeek1.push(DayFactory(((prevMonthLength + 1) - (startingDay - i)), 'premonth'));
@@ -141,8 +161,9 @@ function init() {
 function dayClickEvent(e) {
 	//e is clicked element
 	if (e.target && e.target.nodeName == "TD") {
-		if (e.target.className == "day" || e.target.className == "currentday")
-			alert(e.target.innerHTML);
+		if (e.target.className == "day" || e.target.className == "currentday") {
+			showTaskView(e.target.innerHTML);
+		}
 	}
 };
 
@@ -150,20 +171,201 @@ function showSettings(){
 	document.getElementById("settings").classList.toggle("active");
 }
 
-document.getElementById("modalbg").onclick = function(){
-	var act = document.querySelector(".modal.active");
-	act.classList.remove("active");
+function showTaskView( day ) {
+	taskView.classList.toggle("active");
+	
+	//if newly opened, we set the day / month / year in the header
+	if( taskView.classList.contains("active") ) {
+		selectedDate.string = day.toString() + " " + calendarDefaults.months[cal.month] + " " + cal.year;
+		selectedDate.day = day;
+	}
 }
 
+function showTaskEdit() {
+	//Modal for the task edit and task view, should be different
+	//Currently the two ways of opening edit mode, are to click the edit button, or to double click the view modal
+	taskEdit.classList.toggle("active");
+	
+	//if the task edit modal was closed, we remove all elements from the task edit list
+	if( !taskEdit.classList.contains("active"))
+		while( taskList.length > 0 )
+			taskList.pop();
+}
+
+function addTask() {
+	//get task summary user entered, as well as priority of task
+	var summary;
+		
+	for( var i = 0; i < taskEdit.childNodes.length; i++ ) {
+		if( taskEdit.childNodes[i].className == "taskInput" ) {
+			summary = taskEdit.childNodes[i].value;
+			break;
+		}
+	}
+	
+	//set id of the new task so we can reference it in the future easily
+	var item = TaskFactory(summary);
+	var id = taskList.push( item ) - 1;
+	item.id = id;
+}
+
+//Save changes
+function applyTaskList() {
+
+}
+
+//remove item from our list 
+function removeTaskEvent(e) {
+	//get the ul node, then loop through each of it's children until you find 
+	//the target child, then get its id (value)
+	
+	//This function should only be called after clicking a remove anchor inside of a list element
+	var id = 0,
+		list = e.target.parentNode,
+		listParent = list.parentNode;
+	
+	//get the id 
+	for( var i = 0; i < listParent.children.length; i++) {
+		if( listParent.children[i].nodeName == "LI" ) {
+			if( listParent.children[i] === list ) {
+				id = parseInt(listParent.children[i].dataset.value);
+				break;
+			}
+		}
+	}
+	
+	//find and remove the item in our task list, while decrementing any current ids
+	//larger than this id by 1, keep id's within range of the task list length
+	var index = 0;
+	for( var i = 0; i < taskList.length; i++) {
+		if( taskList[i].id == id )
+			index = i;
+		else if( taskList[i].id > id )
+			taskList[i].id--;
+	}
+	taskList.splice(index, 1);
+}
+
+var dragData = {
+	element: null,
+	divider: null,
+	mouse: 0,
+	offset: 0
+}
+
+function recursiveOffsetLeft(element){
+	if(!element)return 0;
+	var par = element.offsetParent;
+	return element.offsetLeft + (par ? recursiveOffsetLeft(par) : 0);
+}
+
+function recursiveOffsetTop(element){
+	if(!element)return 0;
+	var par = element.offsetParent;
+	return element.offsetTop + (par ? recursiveOffsetTop(par) : 0);
+}
+
+function dragTask(e){
+	var tasks = document.querySelectorAll(".task");
+	dragData = {
+		element:this,
+		index: [].indexOf.call(tasks,this),
+		divider:null,
+		mouse:e.pageY,
+		offset: e.pageY - this.offsetTop,
+		x: recursiveOffsetLeft(this)
+	};
+}
+
+function taskIndex(y){
+	var tasks = document.querySelectorAll(".task");
+	var index;
+	[].forEach.call(tasks,function(el,i){
+		if(
+			el !== dragData.element &&
+			y > recursiveOffsetTop(el) &&
+			y < recursiveOffsetTop(el)+el.offsetHeight
+		) index = i;
+	});
+	if(typeof index === "number"){
+		return index;
+	} else {
+		var index = tasks.length-1;
+		var last = tasks[index];
+		if(last === dragData.element)last = tasks[index--];
+		return last && y > recursiveOffsetTop(last) ? index : 0;
+	}
+}
+
+function taskAt(index){
+	return document.querySelectorAll(".task")[index];
+}
+
+function newTaskY(e,el){
+	return e.pageY - el.offsetHeight /2;
+}
+
+function handleDrag(e){
+	var el = dragData.element;
+	if(el){
+		var rep = document.querySelector(".task.active");
+		if(rep)rep.classList.remove("active");
+		var index = taskIndex(e.pageY);
+		rep= taskAt(index);
+		if(rep)rep.classList.add("active");
+		el.style.position = "fixed";
+		el.style.top = newTaskY(e,el) + "px";
+		el.style.left = dragData.x + "px";
+	}
+}
+
+function relocateTask(e){
+	function moveTask(from, to) {
+		console.log("Moving task:",arguments);
+		console.log("Original:",taskList.map(function(e){return e.id}));
+		if( to === from ) return;
+		
+		var target = taskList[from];
+		var increment = to < from ? -1 : 1;
+		
+		for(var k = from; k != to; k += increment){
+		taskList[k] = taskList[k + increment];
+		}
+		taskList[to] = target;
+		taskList.push({});
+		taskList.pop();
+		console.log("Sorted:",taskList.map(function(e){return e.id}),"\n");
+	}
+	
+	var el = dragData.element;
+	if(el){
+		dragData.element = null;
+		var index = [].indexOf.call(
+			document.querySelectorAll(".task"),
+			document.querySelector(".task.active")
+		);
+		
+		[].forEach.call(
+			document.querySelectorAll(".task.active"),function(e){
+				e.classList.remove("active")});
+		moveTask(dragData.index,index);
+		el.style.position = "static";
+	}
+}
 
 //bind rivets to calendar
 rivets.binders.class = function(el, value){
 	el.classList.add(value);
 }
-rivets.bind(
-	document.getElementById('calendarTable'), {
-		calendar: cal,
-		daysInWeek: calendarDefaults.days,
-		dayClick: dayClickEvent
-	}
-);
+var binding = rivets.bind(document.body, {
+	calendar: cal,
+	daysInWeek: calendarDefaults.days,
+	dayClick: dayClickEvent,
+	selectedDate : selectedDate,
+	tasks: taskList,
+	priorities: priorityDefaults,
+	removeTask : removeTaskEvent,
+	dragTask: dragTask,
+	handleDrag: handleDrag,
+	relocateTask:relocateTask
+});

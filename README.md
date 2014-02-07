@@ -1,7 +1,7 @@
 ###MyB (My Book) 
-####by Boyuan Zhang
+####by Boyuan Zhang and Georgiy Shibaev
 *A simple interactive personal planner*
-<p>runs on Node.js, uses express and possibly handlebars for a templating engine.</p>
+<p>Runs on Node.js, uses express for he back end, Rivets for front end..</p>
 
 ####GETTING STARTED
 
@@ -13,5 +13,5 @@ After downloading zip
 
 #####OR
 
-- start node on the root folder, - node index and pop on over to localhost:3000/calendar
+- Start node on the root folder, - `node .` and pop on over to localhost:3000/calendar
 - To listen on a different port, just modify config.js
