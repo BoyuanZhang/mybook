@@ -23,6 +23,14 @@ rivets.configure({
 	}
 })
 
+function query(query){
+	return document.querySelector(query);
+}
+
+function queryAll(query){
+	return [].slice.call(document.querySelectorAll(query));
+}
+
 //Set variables used for this script,
 //For first initialization, we go to current date,
 //Selected date string to keep track of the date user is viewing / modifying
@@ -266,10 +274,10 @@ function recursiveOffsetTop(element){
 }
 
 function dragTask(e){
-	var tasks = document.querySelectorAll(".task");
+	var tasks = queryAll(".task");
 	dragData = {
 		element:this,
-		index: [].indexOf.call(tasks,this),
+		index: tasks.indexOf(this),
 		divider:null,
 		mouse:e.pageY,
 		offset: e.pageY - this.offsetTop,
@@ -278,9 +286,9 @@ function dragTask(e){
 }
 
 function taskIndex(y){
-	var tasks = document.querySelectorAll(".task");
+	var tasks = queryAll(".task");
 	var index;
-	[].forEach.call(tasks,function(el,i){
+	tasks.forEach(function(el,i){
 		if(
 			el !== dragData.element &&
 			y > recursiveOffsetTop(el) &&
@@ -298,7 +306,7 @@ function taskIndex(y){
 }
 
 function taskAt(index){
-	return document.querySelectorAll(".task")[index];
+	return queryAll(".task")[index];
 }
 
 function newTaskY(e,el){
@@ -308,7 +316,7 @@ function newTaskY(e,el){
 function handleDrag(e){
 	var el = dragData.element;
 	if(el){
-		var rep = document.querySelector(".task.active");
+		var rep = query(".task.active");
 		if(rep)rep.classList.remove("active");
 		var index = taskIndex(e.pageY);
 		rep= taskAt(index);
@@ -321,8 +329,6 @@ function handleDrag(e){
 
 function relocateTask(e){
 	function moveTask(from, to) {
-		console.log("Moving task:",arguments);
-		console.log("Original:",taskList.map(function(e){return e.id}));
 		if( to === from ) return;
 		
 		var target = taskList[from];
@@ -334,19 +340,14 @@ function relocateTask(e){
 		taskList[to] = target;
 		taskList.push({});
 		taskList.pop();
-		console.log("Sorted:",taskList.map(function(e){return e.id}),"\n");
 	}
 	
 	var el = dragData.element;
 	if(el){
 		dragData.element = null;
-		var index = [].indexOf.call(
-			document.querySelectorAll(".task"),
-			document.querySelector(".task.active")
-		);
+		var index = queryAll(".task").indexOf(query(".task.active"));
 		
-		[].forEach.call(
-			document.querySelectorAll(".task.active"),function(e){
+		queryAll(".task.active").forEach(function(e){
 				e.classList.remove("active")});
 		moveTask(dragData.index,index);
 		el.style.position = "static";
