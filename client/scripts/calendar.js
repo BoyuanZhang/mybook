@@ -397,7 +397,7 @@ function relocateTask(e){
 	if(el){
 		dragData.element = null;
 		var index = queryAll(".task").indexOf(query(".task.active"));
-				//no active task
+		//no active task
 		if( index == -1 )
 			return;
 		
