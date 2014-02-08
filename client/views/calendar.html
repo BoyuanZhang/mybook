@@ -33,14 +33,14 @@
 				<button name = "Edit" onclick = "showTaskEdit()">Edit</button>
 			</div>
 			
-			<div class="modal" id="taskEdit" rv-on-mousemove="handleDrag" rv-on-mouseup="relocateTask">
+			<div class="modal" id="taskEdit" >
 				<span class="close" title="close" onclick="showTaskEdit()"></span>
 				<h3>{selectedDate.string}      Task Editing </h3>
 				<input type = "text" class = "taskInput" placeholder = "Enter task description" />
 
 				<button name = "Add" onclick = "addTask()">Add Task</button>
 				
-				<ul class="tasks">
+				<ul class="tasks" rv-on-mousemove="handleDrag" rv-on-mouseup="relocateTask">
 					<li rv-each-task = "tasks" rv-data-value = "task.id" class="task" rv-on-mousedown="dragTask">
 						<input type = "checkbox">
 						<input type = "text" rv-value = "task.summary">

@@ -1,6 +1,7 @@
 var express = require( 'express'),
 	config = require( '../config'),
 	view = require( './routes/view'),
+	data = require( './routes/data'),
 	app = express();
 
 function start() {
@@ -9,7 +10,9 @@ function start() {
 	});
 	
 	//setup front-end routes
-	view(app, express);
+	view(app);
+	//setup routes to database
+	data(app, express);
 
 	app.listen(config.port);
 	console.log( 'MyB running listening on port: ' + config.port);

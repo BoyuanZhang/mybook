@@ -34,6 +34,7 @@ var cal,
 		"string" : "",
 		"day" : 0
 	},
+	taskSaveList = [],
 	taskList = [],
 	taskEdit = document.getElementById("taskEdit"),
 	taskView = document.getElementById("taskView");
@@ -170,6 +171,32 @@ function dayClickEvent(e) {
 function showSettings(){
 	document.getElementById("settings").classList.toggle("active");
 }
+//Task save object
+var taskSaveObj = {
+	date : null,
+	task : "",
+	priority : "",
+	complete : false,
+	entrydate : null
+};
+//Save changes
+function saveTaskList() {
+	//Saves changes in the current task save list 
+	if( taskSaveList.length > 0 ) {
+		var xhr = new XMLHttpRequest();
+		xhr.open( 'POST', '/save', true );
+		xhr.setRequestHeader( 'Content-Type', 'application/json' );
+		
+		//Check for errors upon ready state changes
+		xhr.onreadystatechange = function () {
+			if( xhr.status == 404 ) {
+				//request was not received, inform user of error.
+				//figure out method of informing later
+			}
+		};
+		xhr.send( JSON.stringify( taskSaveList ) );
+	}
+}
 
 function showTaskView( day ) {
 	taskView.classList.toggle("active");
@@ -186,10 +213,39 @@ function showTaskEdit() {
 	//Currently the two ways of opening edit mode, are to click the edit button, or to double click the view modal
 	taskEdit.classList.toggle("active");
 	
-	//if the task edit modal was closed, we remove all elements from the task edit list
-	if( !taskEdit.classList.contains("active"))
-		while( taskList.length > 0 )
-			taskList.pop();
+	//if the task edit modal was closed, we add the list if modified to a save object to be sent to the server,
+	//and remove all elements from the task edit list
+	if( !taskEdit.classList.contains("active")) {
+		//get proper month and day strings in format ##
+		var monthStr,
+			dayStr;
+		if( cal.month >= 9 )
+			monthStr = (cal.month + 1).toString();
+		else
+			monthStr = '0' + (cal.month + 1 );
+			
+		if( selectedDate.day >= 10 )
+			dayStr = selectedDate.day.toString();
+		else
+			dayStr = '0' + selectedDate.day;
+		
+		//before we begin saving empty out the current task save list
+		while( taskSaveList.length > 0 )
+			taskSaveList.pop();
+		
+		while( taskList.length > 0 ) {
+			taskSaveObj = {
+				date : cal.year.toString() + '/' + monthStr + '/' + dayStr,
+				task : taskList[0].summary,
+				priority : taskList[0].priority,
+				complete : taskList[0].complete,
+				entrydate : currentDate.toLocaleDateString()
+			};
+			taskSaveList.push( taskSaveObj );
+			taskList.shift();
+		}
+		saveTaskList();
+	}
 }
 
 function addTask() {
@@ -207,11 +263,6 @@ function addTask() {
 	var item = TaskFactory(summary);
 	var id = taskList.push( item ) - 1;
 	item.id = id;
-}
-
-//Save changes
-function applyTaskList() {
-
 }
 
 //remove item from our list 
@@ -344,6 +395,9 @@ function relocateTask(e){
 			document.querySelectorAll(".task"),
 			document.querySelector(".task.active")
 		);
+		//no active task
+		if( index == -1 )
+			return;
 		
 		[].forEach.call(
 			document.querySelectorAll(".task.active"),function(e){

@@ -14,9 +14,6 @@ html {
 	text-align: center;
 }
 
-/*Haven't decided how to differentiate these headers yet*/
-/*--------------------------------------------------------*/
-
 .currentmonth > * {
 	border: 1px solid gray;
 	color: #000000;
@@ -31,7 +28,6 @@ html {
 .currentmonth .prevmonth {
 	cursor: pointer;
 }
-/*--------------------------------------------------------*/
 
 .daysofweek {
 	text-align: center;
