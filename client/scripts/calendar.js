@@ -35,7 +35,7 @@ function queryAll(query){
 //For first initialization, we go to current date,
 //Selected date string to keep track of the date user is viewing / modifying
 //User may only edit one task list at a time so we re-use the tasklist for each editing modal
-//Get DOM handles to taskedit and taskview
+//Get DOM handles to taskedit
 var cal,
 	currentDate = new Date(),
 	selectedDate = {
@@ -44,8 +44,7 @@ var cal,
 	},
 	taskSaveList = [],
 	taskList = [],
-	taskEdit = document.getElementById("taskEdit"),
-	taskView = document.getElementById("taskView");
+	taskEdit = document.getElementById("taskEdit");
 	
 function DayFactory(dayofmonth, type) {
 	var day = {
@@ -55,8 +54,10 @@ function DayFactory(dayofmonth, type) {
 	return day;
 }
 
-function TaskFactory(sum) {
+function TaskFactory(sum, objectid) {
 	var task = {
+		//objectid represents the id of the task within the db
+		objectid : objectid,
 		id : 0,
 		complete: false,
 		summary: sum,
@@ -171,7 +172,7 @@ function dayClickEvent(e) {
 	//e is clicked element
 	if (e.target && e.target.nodeName == "TD") {
 		if (e.target.className == "day" || e.target.className == "currentday") {
-			showTaskView(e.target.innerHTML);
+			showTaskEdit(e.target.innerHTML);
 		}
 	}
 };
@@ -181,6 +182,7 @@ function showSettings(){
 }
 //Task save object
 var taskSaveObj = {
+	index : 0,
 	date : null,
 	task : "",
 	priority : "",
@@ -206,17 +208,7 @@ function saveTaskList() {
 	}
 }
 
-function showTaskView( day ) {
-	taskView.classList.toggle("active");
-	
-	//if newly opened, we set the day / month / year in the header
-	if( taskView.classList.contains("active") ) {
-		selectedDate.string = day.toString() + " " + calendarDefaults.months[cal.month] + " " + cal.year;
-		selectedDate.day = day;
-	}
-}
-
-function showTaskEdit() {
+function showTaskEdit(day) {
 	//Modal for the task edit and task view, should be different
 	//Currently the two ways of opening edit mode, are to click the edit button, or to double click the view modal
 	taskEdit.classList.toggle("active");
@@ -241,8 +233,14 @@ function showTaskEdit() {
 		while( taskSaveList.length > 0 )
 			taskSaveList.pop();
 		
+		//use this variable (i) to calculate the index of the task being saved
+		var i = taskList.length;
 		while( taskList.length > 0 ) {
 			taskSaveObj = {
+				taskid : taskList[0].objectid,
+				//the userid will be hardcoded to 0 for testing purposes
+				userid : 0,
+				index : i - taskList.length,
 				date : cal.year.toString() + '/' + monthStr + '/' + dayStr,
 				task : taskList[0].summary,
 				priority : taskList[0].priority,
@@ -253,6 +251,11 @@ function showTaskEdit() {
 			taskList.shift();
 		}
 		saveTaskList();
+	}
+	else {
+		//otherwise if task editor was open, we set the current selected day
+		selectedDate.string = day.toString() + " " + calendarDefaults.months[cal.month] + " " + cal.year;
+		selectedDate.day = day;
 	}
 }
 
@@ -268,7 +271,7 @@ function addTask() {
 	}
 	
 	//set id of the new task so we can reference it in the future easily
-	var item = TaskFactory(summary);
+	var item = TaskFactory(summary, -1);
 	var id = taskList.push( item ) - 1;
 	item.id = id;
 }

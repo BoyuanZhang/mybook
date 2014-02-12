@@ -1,0 +1,22 @@
+##Table Create Scripts
+
+#User Table (Strictly for testing currently)
+CREATE TABLE adm_users(
+	id SERIAL PRIMARY KEY,
+	username varchar(25)
+);
+
+#Tasks Table
+CREATE TABLE cal_tasks(
+	id SERIAL PRIMARY KEY,
+	userid INT REFERENCES adm_users(id) NOT NULL,
+	index INT NOT NULL,
+	date DATE NOT NULL,
+	task TEXT,
+	priority varchar(12) NOT NULL,
+	complete boolean NOT NULL,
+	entrydate DATE NOT NULL
+);
+
+#Insertions
+INSERT INTO adm_users ( id, username ) VALUES (0, 'test');

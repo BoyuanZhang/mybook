@@ -3,6 +3,7 @@ var path = require( 'path' ),
 
 function paths() {
 	return {
+		'root' : root,
 		'client' : path.join(root + '/client')
 	};
 };
