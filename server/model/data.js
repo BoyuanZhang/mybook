@@ -38,8 +38,6 @@ function saveTasks( taskList ) {
 };
 
 function getTasks( date, callback ) {
-	var test = new Date();
-	console.log( test.getTime() );
 	var client = new pg.Client(conStr);
 	client.connect();
 	var query = client.query("SELECT * FROM cal_tasks WHERE date = '" +date+"'");
@@ -67,7 +65,6 @@ function getTasks( date, callback ) {
 				});
 		});
 		client.end();
-		console.log( test.getTime() );
 		callback(taskList);
 	});
 };
