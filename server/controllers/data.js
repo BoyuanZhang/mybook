@@ -1,4 +1,5 @@
-var datamodel = require( '../model/data.js');
+var datamodel = require( '../model/data.js'),
+	url = require( 'url');
 
 //Handle requests to database
 var dataController = {
@@ -7,6 +8,11 @@ var dataController = {
 		//send request body to the model tier for saving
 		datamodel.save(req.body);
 		res.end();
+	},
+	'getTasks' : function( req, res ) {
+		var taskList = datamodel.getTasks( url.parse(req.url, true).query.date, function ( taskList) {
+			res.json( taskList);
+		});
 	}
 };
 

@@ -36,6 +36,7 @@ function queryAll(query){
 //Selected date string to keep track of the date user is viewing / modifying
 //User may only edit one task list at a time so we re-use the tasklist for each editing modal
 //Get DOM handles to taskedit
+//Cache for task lists for certain dates
 var cal,
 	currentDate = new Date(),
 	selectedDate = {
@@ -44,7 +45,8 @@ var cal,
 	},
 	taskSaveList = [],
 	taskList = [],
-	taskEdit = document.getElementById("taskEdit");
+	taskEdit = document.getElementById("taskEdit"),
+	taskCache = [];
 	
 function DayFactory(dayofmonth, type) {
 	var day = {
@@ -184,7 +186,7 @@ function showSettings(){
 var taskSaveObj = {
 	index : 0,
 	date : null,
-	task : "",
+	summary : "",
 	priority : "",
 	complete : false,
 	entrydate : null
@@ -193,6 +195,11 @@ var taskSaveObj = {
 function saveTaskList() {
 	//Saves changes in the current task save list 
 	if( taskSaveList.length > 0 ) {
+		//since we are saving the task list of the selected Date because it is modified, we remove it from the cache
+		//if it exists
+		if( taskCache[selectedDate.string] )
+			delete taskCache[selectedDate.string];
+			
 		var xhr = new XMLHttpRequest();
 		xhr.open( 'POST', '/save', true );
 		xhr.setRequestHeader( 'Content-Type', 'application/json' );
@@ -208,14 +215,7 @@ function saveTaskList() {
 	}
 }
 
-function showTaskEdit(day) {
-	//Modal for the task edit and task view, should be different
-	//Currently the two ways of opening edit mode, are to click the edit button, or to double click the view modal
-	taskEdit.classList.toggle("active");
-	
-	//if the task edit modal was closed, we add the list if modified to a save object to be sent to the server,
-	//and remove all elements from the task edit list
-	if( !taskEdit.classList.contains("active")) {
+function getSelectedDateStr() {
 		//get proper month and day strings in format ##
 		var monthStr,
 			dayStr;
@@ -228,6 +228,18 @@ function showTaskEdit(day) {
 			dayStr = selectedDate.day.toString();
 		else
 			dayStr = '0' + selectedDate.day;
+			
+		return cal.year.toString() + '/' + monthStr + '/' + dayStr;
+}
+
+function showTaskEdit(day) {
+	//Modal for the task edit and task view, should be different
+	//Currently the two ways of opening edit mode, are to click the edit button, or to double click the view modal
+	taskEdit.classList.toggle("active");
+	
+	//if the task edit modal was closed, we add the list if modified to a save object to be sent to the server,
+	//and remove all elements from the task edit list
+	if( !taskEdit.classList.contains("active")) {
 		
 		//before we begin saving empty out the current task save list
 		while( taskSaveList.length > 0 )
@@ -236,13 +248,17 @@ function showTaskEdit(day) {
 		//use this variable (i) to calculate the index of the task being saved
 		var i = taskList.length;
 		while( taskList.length > 0 ) {
+			// ensure an taskid has been set, if not we set the taskid to -1
+			if( typeof taskList[0].taskid === 'undefined' )
+				taskList[0].taskid = -1;
+				
 			taskSaveObj = {
-				taskid : taskList[0].objectid,
+				taskid : taskList[0].taskid,
 				//the userid will be hardcoded to 0 for testing purposes
 				userid : 0,
 				index : i - taskList.length,
-				date : cal.year.toString() + '/' + monthStr + '/' + dayStr,
-				task : taskList[0].summary,
+				date : getSelectedDateStr(),
+				summary : taskList[0].summary,
 				priority : taskList[0].priority,
 				complete : taskList[0].complete,
 				entrydate : currentDate.toLocaleDateString()
@@ -256,6 +272,41 @@ function showTaskEdit(day) {
 		//otherwise if task editor was open, we set the current selected day
 		selectedDate.string = day.toString() + " " + calendarDefaults.months[cal.month] + " " + cal.year;
 		selectedDate.day = day;
+		//check our cache, if the data is in there, we just use the cache. Otherwise we retrieve from the db
+		if( taskCache[selectedDate.string] ) {
+		}
+		else {
+			//retrieve task lists for this date from db
+			var xhr = new XMLHttpRequest(),
+				tasks,
+				queryStr = '/ret?date='+getSelectedDateStr();
+			xhr.open( "GET", queryStr, "true" );
+			xhr.onreadystatechange = function(){
+				if( xhr.readyState == 4 && xhr.status == 200) {
+					tasks = JSON.parse(xhr.responseText);
+					tasks.forEach( function( element, index ) {
+						// ensure an objectid has been set, if not we set the objectid to -1
+						if( typeof element.id === 'undefined' )
+							element.id = -1;
+							
+						taskSaveObj = {
+							taskid : element.id,
+							//the userid will be hardcoded to 0 for testing purposes
+							userid : element.userid,
+							index : element.index,
+							date : element.date,
+							summary : element.summary,
+							priority : element.priority,
+							complete : element.complete
+						};
+						taskList.push( taskSaveObj );
+					});
+					//sort the taskList
+					taskList.sort( taskIndexCompare );
+				}
+			}
+			xhr.send();
+		}
 	}
 }
 
@@ -409,6 +460,15 @@ function relocateTask(e){
 		moveTask(dragData.index,index);
 		el.style.position = "static";
 	}
+}
+
+function taskIndexCompare( a, b ) {
+	if( a.index > b.index )
+		return 1;
+	else if ( a.index < b.index )
+		return -1;
+	else 
+		return 0;
 }
 
 //bind rivets to calendar

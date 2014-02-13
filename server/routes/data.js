@@ -3,7 +3,8 @@ var dataController = require('../controllers/data');
 
 //valid route requests
 var data = function (app, express) {
-	app.post( '/save', express.json(), dataController.save )
+	app.get( '/ret', dataController.getTasks );
+	app.post( '/save', express.json(), dataController.save );
 };
 
 module.exports = data;

@@ -9,10 +9,10 @@ function start() {
 		app.use( express.static( 'client' ) );
 	});
 	
-	//setup front-end routes
-	view(app);
 	//setup routes to database
 	data(app, express);
+	//setup front-end routes
+	view(app);
 
 	app.listen(config.port);
 	console.log( 'MyB running listening on port: ' + config.port);
