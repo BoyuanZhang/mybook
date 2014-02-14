@@ -30,6 +30,10 @@ html {
 	color: #000000;
 }
 
+.day:nth-child(even),.premonth:nth-child(even),.currentday:nth-child(even){
+	background:#EEE;
+}
+
 .premonth {
 	color: gray;
 	text-align: center;
@@ -42,10 +46,6 @@ html {
 .day:hover {
 	color: white;
 	background-color: black;
-}
-
-.day:nth-child(even),.premonth:nth-child(even){
-	background:#EEE;
 }
 
 .currentday {
