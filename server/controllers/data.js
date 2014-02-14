@@ -13,6 +13,10 @@ var dataController = {
 		var taskList = datamodel.getTasks( url.parse(req.url, true).query.date, function ( taskList) {
 			res.json( taskList);
 		});
+	},
+	'removeTask' : function( req, res ) {
+		datamodel.removeTask( req.body );
+		res.end();
 	}
 };
 

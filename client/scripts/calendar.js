@@ -184,6 +184,7 @@ function showSettings(){
 }
 //Task save object
 var taskSaveObj = {
+	id : 0,
 	index : 0,
 	date : null,
 	summary : "",
@@ -266,6 +267,8 @@ function showTaskEdit(day) {
 			taskSaveList.push( taskSaveObj );
 			taskList.shift();
 		}
+		//before saving, since the task list for this date is modified remove it from our cache 
+		//for the selected day.
 		saveTaskList();
 	}
 	else {
@@ -290,6 +293,7 @@ function showTaskEdit(day) {
 							element.id = -1;
 							
 						taskSaveObj = {
+							id : taskList.length,
 							taskid : element.id,
 							//the userid will be hardcoded to 0 for testing purposes
 							userid : element.userid,
@@ -303,6 +307,7 @@ function showTaskEdit(day) {
 					});
 					//sort the taskList
 					taskList.sort( taskIndexCompare );
+					//save taskList into our cache for the selectedDate
 				}
 			}
 			xhr.send();
@@ -355,6 +360,20 @@ function removeTaskEvent(e) {
 			index = i;
 		else if( taskList[i].id > id )
 			taskList[i].id--;
+	}
+	if( taskList[index].taskid != -1 ) {
+		//after removal, don't forget to remove task from our cache, or remove the entire tasklist for this selecteddate from the cache (Not decided yet)
+		var xhr = new XMLHttpRequest();
+		xhr.open( 'POST', '/delete', true );
+		xhr.setRequestHeader( 'Content-Type', 'application/json');
+		
+		xhr.onreadystatechange = function() {
+			if( xhr.status == 404 ) {
+				//request was not received, inform user of error
+			}
+		};
+		//send the id that needs to be deleted
+		xhr.send( JSON.stringify( {id: taskList[index].taskid} ) );
 	}
 	taskList.splice(index, 1);
 }
