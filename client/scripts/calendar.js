@@ -261,7 +261,7 @@ function showTaskEdit(day) {
 				summary : taskList[0].summary,
 				priority : taskList[0].priority,
 				complete : taskList[0].complete,
-				entrydate : currentDate.toLocaleDateString()
+				entrydate : currentDate.toUTCString()
 			};
 			taskSaveList.push( taskSaveObj );
 			taskList.shift();
