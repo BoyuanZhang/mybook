@@ -37,7 +37,9 @@
 				<ul class="tasks" rv-on-mousemove="handleDrag" rv-on-mouseup="relocateTask">
 					<li rv-each-task = "tasks" rv-data-value = "task.id" class="task" rv-on-mousedown="dragTask">
 						<input type = "checkbox" rv-value = "task.complete">
-						<input type = "text" rv-value = "task.summary">
+						<div class = "text" contenteditable="true" rv-on-input="updateTaskContents">
+							{task.summary}
+						</div>
 						<select rv-value = "task.priority"> 
 							<option rv-each-priority = "priorities" rv-value = "priority">{priority}</option>
 						</select>

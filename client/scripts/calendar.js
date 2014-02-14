@@ -475,6 +475,15 @@ function taskIndexCompare( a, b ) {
 		return 0;
 }
 
+function updateTaskContents(e){
+	var id = parseInt(this.parentNode.dataset.value);
+	var task;
+	taskList.forEach(function(t){
+		if(t.id === id)task = t;
+	});
+	task.summary = this.innerText;
+}
+
 //bind rivets to calendar
 rivets.binders.class = function(el, value){
 	el.classList.add(value);
@@ -498,5 +507,6 @@ var binding = rivets.bind(document.body, {
 	removeTask : removeTaskEvent,
 	dragTask: dragTask,
 	handleDrag: handleDrag,
-	relocateTask:relocateTask
+	relocateTask:relocateTask,
+	updateTaskContents:updateTaskContents
 });
