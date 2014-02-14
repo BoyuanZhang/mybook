@@ -8,11 +8,11 @@
 		<div id = "calendar"> 
 			<table id = "calendarTable" class = "calendar">
 				<tr class='currentmonth'>
-					<th class = 'prevmonth' onclick = "prevMonth()"> Previous </th>
+					<th class = 'control prevmonth' onclick = "prevMonth()"> Previous </th>
 					<th class = 'month'>{calendar.monthText} {calendar.year}</th>
-					<th class = 'nextmonth' onclick = "nextMonth()"> Next </th>
-					<th class = 'today' onclick = "today()"> Today </th>
-					<th onclick = "showSettings()">Settings</th>
+					<th class = 'control nextmonth' onclick = "nextMonth()"> Next </th>
+					<th class = 'control today' onclick = "today()"> Today </th>
+					<th class = 'control settings' onclick = "showSettings()">Settings</th>
 				</tr>
 				<tr class = 'daysofweek'>
 					<td rv-each-dayofweek = "daysInWeek" class="dayofweek">{dayofweek}</td>
