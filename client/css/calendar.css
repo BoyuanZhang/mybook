@@ -9,10 +9,6 @@ html {
 .calendar td {
 	padding: 25px;
 }
-.premonth {
-	color: gray;
-	text-align: center;
-}
 
 .currentmonth > * {
 	border: 1px solid gray;
@@ -33,6 +29,12 @@ html {
 .daysofweek .dayofweek {
 	color: #000000;
 }
+
+.premonth {
+	color: gray;
+	text-align: center;
+}
+
 .day {
 	color: black;
 	text-align: center;
@@ -41,6 +43,11 @@ html {
 	color: white;
 	background-color: black;
 }
+
+.day:nth-child(even),.premonth:nth-child(even){
+	background:#EEE;
+}
+
 .currentday {
 	border: 1px solid #0052A3;
 	color: #0052A3;
