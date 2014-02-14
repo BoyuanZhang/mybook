@@ -5,6 +5,7 @@ var dataController = require('../controllers/data');
 var data = function (app, express) {
 	app.get( '/ret', dataController.getTasks );
 	app.post( '/save', express.json(), dataController.save );
+	app.post( '/delete', express.json(), dataController.removeTask);
 };
 
 module.exports = data;
