@@ -317,14 +317,7 @@ function showTaskEdit(day) {
 
 function addTask() {
 	//get task summary user entered, as well as priority of task
-	var summary;
-		
-	for( var i = 0; i < taskEdit.childNodes.length; i++ ) {
-		if( taskEdit.childNodes[i].className == "taskInput" ) {
-			summary = taskEdit.childNodes[i].value;
-			break;
-		}
-	}
+	var summary = document.querySelector("#taskEdit .taskInput").value;
 	
 	//set id of the new task so we can reference it in the future easily
 	var item = TaskFactory(summary, -1);
