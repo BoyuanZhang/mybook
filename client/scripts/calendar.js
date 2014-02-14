@@ -293,7 +293,7 @@ function showTaskEdit(day) {
 							element.id = -1;
 							
 						taskSaveObj = {
-							id : taskList.length,
+							id : taskList.length+1,
 							taskid : element.id,
 							//the userid will be hardcoded to 0 for testing purposes
 							userid : element.userid,
@@ -328,7 +328,7 @@ function addTask() {
 	
 	//set id of the new task so we can reference it in the future easily
 	var item = TaskFactory(summary, -1);
-	var id = taskList.push( item ) - 1;
+	var id = taskList.push( item );
 	item.id = id;
 }
 
@@ -340,17 +340,9 @@ function removeTaskEvent(e) {
 	//This function should only be called after clicking a remove anchor inside of a list element
 	var id = 0,
 		list = e.target.parentNode,
-		listParent = list.parentNode;
 	
 	//get the id 
-	for( var i = 0; i < listParent.children.length; i++) {
-		if( listParent.children[i].nodeName == "LI" ) {
-			if( listParent.children[i] === list ) {
-				id = parseInt(listParent.children[i].dataset.value);
-				break;
-			}
-		}
-	}
+	id = list.dataset.value;
 	
 	//find and remove the item in our task list, while decrementing any current ids
 	//larger than this id by 1, keep id's within range of the task list length
