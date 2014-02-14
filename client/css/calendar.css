@@ -95,8 +95,6 @@ html {
 .task .text {
 	display:inline-block;
 	width:150px;
-	border:1px solid rgba(0,0,0,0.3);
-	background:white;
 	padding:2px;
 	margin:2px;
 }
@@ -104,5 +102,5 @@ html {
 	background:rgba(255,0,0,0.3);
 }
 .task:hover {
-	background-color:rgba(0,0,255,0.3);
+	background-color:rgba(128,128,255,0.3);
 }
