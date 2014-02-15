@@ -36,11 +36,9 @@
 				
 				<ul class="tasks" rv-on-mousemove="handleDrag" rv-on-mouseup="relocateTask">
 					<li rv-each-task = "tasks" rv-data-value = "task.id" class="task" rv-on-mousedown="dragTask">
-						<input type = "checkbox" rv-value = "task.complete">
-						<div class = "text" contenteditable="true" rv-on-input="updateTaskContents">
-							{task.summary}
-						</div>
-						<select rv-value = "task.priority"> 
+						<input class = "taskcb" type = "checkbox" rv-value = "task.complete" rv-on-change="saveTask">
+						<div class = "text" contenteditable="true" rv-on-input="updateTaskContents" rv-on-blur="saveTask">{task.summary}</div>
+						<select class = "taskpriority" rv-value = "task.priority" rv-on-change="saveTask"> 
 							<option rv-each-priority = "priorities" rv-value = "priority">{priority}</option>
 						</select>
 						<a href = "#" rv-on-click = "removeTask">x</a>
@@ -53,6 +51,9 @@
 		<script src = "../scripts/watch.min.js"></script>
 		<script src = "../scripts/rivets.min.js"></script>
 		<script src = "../scripts/calendar.js" ></script>
+		<script src = "../scripts/settings.js"></script>
+		<script src = "../scripts/tasks.js"></script>
+		<script src = "../scripts/bindings.js"></script>
 		<script>init();</script>
 	</body>
 </html>

@@ -4,14 +4,25 @@ var datamodel = require( '../model/data.js'),
 //Handle requests to database
 var dataController = {
 	//express provides the request, response arguments
-	'save' : function( req, res ) {
+	'addTask' : function( req, res ) {
 		//send request body to the model tier for saving
-		datamodel.save(req.body);
+		datamodel.addTask(req.body, function(taskidObj) {
+			if( taskidObj )
+				res.json(taskidObj);
+			else 
+				res.end();
+		});
+	},
+	'saveTask' : function( req, res ) {
+		datamodel.saveTask( req.body );
 		res.end();
 	},
 	'getTasks' : function( req, res ) {
-		var taskList = datamodel.getTasks( url.parse(req.url, true).query.date, function ( taskList) {
-			res.json( taskList);
+		datamodel.getTasks( url.parse(req.url, true).query.date, function ( taskList) {
+			if( taskList ) 
+				res.json( taskList);
+			else
+				res.end();
 		});
 	},
 	'removeTask' : function( req, res ) {
