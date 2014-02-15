@@ -60,20 +60,11 @@ function showTaskEdit(day) {
 						// ensure an objectid (taskid) has been set, if not we set the objectid to -1
 						if( typeof element.id === 'undefined' )
 							element.id = -1;
-							
-						taskSaveObj = {
-							id : taskList.length+1,
-							taskid : element.id,
-							//the userid will be hardcoded to 0 for testing purposes
-							userid : element.userid,
-							index : element.index,
-							date : element.date,
-							summary : element.summary,
-							priority : element.priority,
-							complete : element.complete
-						};
-						var item = TaskFactory( taskSaveObj.summary, taskSaveObj.taskid );
-						item.id = taskSaveObj.id;
+						var item = TaskFactory( element.summary, element.id );
+						item.id = taskList.length+1;
+						item.priority = element.priority;
+						item.complete = element.complete;
+
 						taskList.push( item );
 					});
 					//sort the taskList
@@ -130,9 +121,7 @@ function addTask() {
 	//don't forget to remove this task list from the cache after the new task is added 
 }
 
-//Save changes to task 
-function saveTask(e) {
-	var id = parseInt(this.parentNode.dataset.value);
+function getTaskObj( id ) {
 	var task,
 		index;
 		
@@ -143,16 +132,39 @@ function saveTask(e) {
 			break;
 		}
 	}
+	var taskObj = {
+		task : task,
+		index: index
+	}
 	
-	//if the changed field was the summary field (class name of 'text'), we update the summary explicitly
-	//if the changed field is of type checkbox, we update the checkbox
-	//if the changed field is of 
-	if( this.className == "text" )
-		task.summary = this.textContent;
-	else if( this.className == "taskcb" )
-		task.complete = this.checked;
-	else if( this.className == "taskpriority" )
-		task.priority = this.value;
+	return taskObj;
+}
+
+function taskSummaryChanged(e) {
+	var id = parseInt(this.parentNode.dataset.value);
+	var taskObj = getTaskObj(id); 
+	taskObj.task.summary = this.textContent;
+	saveTask( taskObj );
+}
+
+function taskPriorityChanged(e) {
+	var id = parseInt(this.parentNode.dataset.value);
+	var taskObj = getTaskObj(id); 
+	taskObj.task.priority = this.value;
+	saveTask( taskObj );
+}
+	
+function taskCompleteChanged(e) {
+	var id = parseInt(this.parentNode.dataset.value);
+	var taskObj = getTaskObj(id); 
+	taskObj.task.complete = this.checked;
+	saveTask( taskObj );
+}
+
+//Save changes to task 
+function saveTask(taskObj) {
+	var task = taskObj.task,
+		index = taskObj.index;
 	
 	taskSaveObj = {
 		taskid : task.taskid,
@@ -177,6 +189,26 @@ function saveTask(e) {
 	}
 	
 	xhr.send( JSON.stringify( taskSaveObj ) );
+}
+
+function updateTaskListIndicies( index ) {
+	
+	var indexUpdateList = [];
+	for( var i = index; i < taskList.length; i++ )
+		indexUpdateList.push( {taskid : taskList[i].taskid, index : i } );
+		
+	var xhr = new XMLHttpRequest();
+	xhr.open( 'POST', '/updateTaskIndexes', true );
+	xhr.setRequestHeader( 'Content-Type', 'application/json' );
+	
+	xhr.onreadystatechange = function() {
+		if( xhr.status == 404 ) {
+			//request was not received, inform user that the update did not happen
+			//figure out method / and status code for informing later		
+		}
+	}
+	
+	xhr.send( JSON.stringify( indexUpdateList ) );
 }
 
 //remove item from our list 
@@ -317,6 +349,12 @@ function relocateTask(e){
 				e.classList.remove("active")});
 		moveTask(dragData.index,index);
 		el.style.position = "static";
+		
+		//Now we need to update all relevent indexes in the database, from the
+		//newly inserted index
+		if( dragData.index != index ) {
+			updateTaskListIndicies( index );
+		}
 	}
 }
 

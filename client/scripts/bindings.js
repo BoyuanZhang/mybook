@@ -23,5 +23,7 @@ var binding = rivets.bind(document.body, {
 	handleDrag: handleDrag,
 	relocateTask:relocateTask,
 	updateTaskContents:updateTaskContents,
-	saveTask:saveTask
+	taskSummaryChanged:taskSummaryChanged,
+	taskPriorityChanged:taskPriorityChanged,
+	taskCompleteChanged:taskCompleteChanged
 });

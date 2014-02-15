@@ -59,6 +59,25 @@ function saveTask( task ) {
 	}
 }
 
+function updateTaskIndexes( indexUpdateList ) {
+	if( indexUpdateList ) {
+		var client = new pg.Client( conStr );
+		client.connect();
+		
+		indexUpdateList.forEach( function( element, index ) {
+			if( element.taskid != -1 ) {
+				client.query( "UPDATE cal_tasks SET index = $1 WHERE id = $2", [element.index, element.taskid], function( err ) {
+					if( err ) {
+						console.log( "An error has occured while updating indexes in cal_tasks. " + err );
+						return rollback( client );
+					}
+				});
+			}
+		});
+		client.query( 'COMMIT', client.end.bind( client) );
+	}
+}
+
 function getTasks( date, callback ) {
 	var client = new pg.Client(conStr);
 	client.connect();
@@ -114,5 +133,6 @@ var rollback = function( client ) {
 
 module.exports.addTask = addTask;
 module.exports.saveTask = saveTask;
+module.exports.updateTaskIndexes = updateTaskIndexes;
 module.exports.getTasks = getTasks;
 module.exports.removeTask = removeTask;

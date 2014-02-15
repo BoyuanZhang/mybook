@@ -17,6 +17,10 @@ var dataController = {
 		datamodel.saveTask( req.body );
 		res.end();
 	},
+	'updateTaskIndexes' : function( req, res ) {
+		datamodel.updateTaskIndexes( req.body );
+		res.end();
+	},
 	'getTasks' : function( req, res ) {
 		datamodel.getTasks( url.parse(req.url, true).query.date, function ( taskList) {
 			if( taskList ) 
