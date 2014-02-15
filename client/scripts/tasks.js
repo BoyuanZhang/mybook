@@ -329,10 +329,6 @@ function updateTaskContents(e){
 	task.summary = this.textContent;
 }
 
-function updateTaskPriority(e) {
-
-}
-
 function taskIndexCompare( a, b ) {
 	if( a.index > b.index )
 		return 1;
