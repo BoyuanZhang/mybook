@@ -9,6 +9,7 @@ var taskList = [],
 function TaskFactory(sum, taskid) {
 	var task = {
 		//taskid represents the id of the task within the db
+		//id is the unique identifier of the task in the array since index can't be trusted
 		taskid : taskid,
 		id : 0,
 		complete: false,
@@ -46,6 +47,9 @@ function showTaskEdit(day) {
 		selectedDate.day = day;
 		//check our cache, if the data is in there, we just use the cache. Otherwise we retrieve from the db
 		if( taskCache[selectedDate.string] ) {
+			taskCache[selectedDate.string].forEach( function( element, index ) {
+				taskList.push(element);
+			});
 		}
 		else {
 			//retrieve task lists for this date from db
@@ -56,20 +60,26 @@ function showTaskEdit(day) {
 			xhr.onreadystatechange = function(){
 				if( xhr.readyState == 4 && xhr.status == 200) {
 					tasks = JSON.parse(xhr.responseText);
-					tasks.forEach( function( element, index ) {
-						// ensure an objectid (taskid) has been set, if not we set the objectid to -1
-						if( typeof element.id === 'undefined' )
-							element.id = -1;
-						var item = TaskFactory( element.summary, element.id );
-						item.id = taskList.length+1;
-						item.priority = element.priority;
-						item.complete = element.complete;
+					if( tasks.length > 0 ) {
+						tasks.forEach( function( element, index ) {
+							// ensure an objectid (taskid) has been set, if not we set the objectid to -1
+							if( typeof element.id === 'undefined' )
+								element.id = -1;
+							var item = TaskFactory( element.summary, element.id );
+							item.id = taskList.length+1;
+							item.priority = element.priority;
+							item.complete = element.complete;
 
-						taskList.push( item );
-					});
-					//sort the taskList
-					taskList.sort( taskIndexCompare );
-					//save taskList into our cache for the selectedDate
+							taskList.push( item );
+						});
+						//sort the taskList
+						taskList.sort( taskIndexCompare );
+						//save taskList items into our cache for the selectedDate
+						taskCache[selectedDate.string] = [];
+						taskList.forEach( function( element, index ) {
+							taskCache[selectedDate.string].push(element);
+						});
+					}
 				}
 			}
 			xhr.send();
@@ -118,7 +128,9 @@ function addTask() {
 	}
 	xhr.send(JSON.stringify( taskSaveObj ) );
 	
-	//don't forget to remove this task list from the cache after the new task is added 
+	//Remove this task list from the cache after the new task is added
+	if( taskCache[selectedDate.string] )
+		delete taskCache[selectedDate.string];
 }
 
 function getTaskObj( id ) {
@@ -189,6 +201,9 @@ function saveTask(taskObj) {
 	}
 	
 	xhr.send( JSON.stringify( taskSaveObj ) );
+	
+	//Remove this task list from the cache after a task has been updated
+	removeCachedTaskList();
 }
 
 function updateTaskListIndicies( index ) {
@@ -209,6 +224,9 @@ function updateTaskListIndicies( index ) {
 	}
 	
 	xhr.send( JSON.stringify( indexUpdateList ) );
+	
+	//Remove this task list from the cache after one or more task indexes have been updated
+	removeCachedTaskList();
 }
 
 //remove item from our list 
@@ -247,6 +265,8 @@ function removeTaskEvent(e) {
 		xhr.send( JSON.stringify( {id: taskList[index].taskid} ) );
 	}
 	taskList.splice(index, 1);
+	//remove tasks for this date from cache when an item has been deleted
+	removeCachedTaskList();
 }
 
 var dragData = {
@@ -374,4 +394,9 @@ function taskIndexCompare( a, b ) {
 		return -1;
 	else 
 		return 0;
+}
+
+function removeCachedTaskList() {
+	if( taskCache[selectedDate.string] )
+		delete taskCache[selectedDate.string];
 }
