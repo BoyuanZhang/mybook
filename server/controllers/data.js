@@ -22,6 +22,8 @@ var dataController = {
 		res.end();
 	},
 	'getTasks' : function( req, res ) {
+		//validate the date query in the URL here.
+		//Make sure it is not empty, and that it is a valid date string
 		datamodel.getTasks( url.parse(req.url, true).query.date, function ( taskList) {
 			if( taskList ) 
 				res.json( taskList);
