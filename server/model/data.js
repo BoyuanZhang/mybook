@@ -110,16 +110,31 @@ function getTasks( date, callback ) {
 	});
 };
 
-function removeTask( idContainer ) {
+function removeTask( deleteObject ) {
+	var indexUpdateList = deleteObject.indexUpdateList;
 	var client = new pg.Client(conStr);
 	client.connect();
-		client.query( "DELETE FROM cal_tasks WHERE id = $1", [idContainer.id], function( err, result ) {
-			if( err ) {
-				console.log( "An error has occured while deleting from cal_tasks. Error: " + err );
-				return rollback(client);
-			}
-		});
-	//Commit once delete is complete
+	
+	//Perform delete
+	client.query( "DELETE FROM cal_tasks WHERE id = $1", [deleteObject.id], function( err, result ) {
+		if( err ) {
+			console.log( "An error has occured while deleting from cal_tasks. Error: " + err );
+			return rollback(client);
+		}
+	});
+	//Perform update of necessary indexes
+	indexUpdateList.forEach( function( element, index ) {
+		if( element.taskid != -1 ) {
+			client.query( "UPDATE cal_tasks SET index = $1 WHERE id = $2", [element.index, element.taskid], function( err ) {
+				if( err ) {
+					console.log( "An error has occured while updating indexes in cal_tasks. " + err );
+					return rollback( client );
+				}
+			});
+		}
+	});
+	
+	//Commit once delete and updates are complete
 	client.query( 'COMMIT', client.end.bind( client) );		
 }
 

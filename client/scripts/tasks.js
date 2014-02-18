@@ -69,6 +69,7 @@ function showTaskEdit(day) {
 							item.id = taskList.length+1;
 							item.priority = element.priority;
 							item.complete = element.complete;
+							item.originalIndex = element.index;
 
 							taskList.push( item );
 						});
@@ -211,22 +212,25 @@ function updateTaskListIndicies( index ) {
 	var indexUpdateList = [];
 	for( var i = index; i < taskList.length; i++ )
 		indexUpdateList.push( {taskid : taskList[i].taskid, index : i } );
+	
+	if( indexUpdateList.length > 0 ) 
+	{
+		var xhr = new XMLHttpRequest();
+		xhr.open( 'POST', '/updateTaskIndexes', true );
+		xhr.setRequestHeader( 'Content-Type', 'application/json' );
 		
-	var xhr = new XMLHttpRequest();
-	xhr.open( 'POST', '/updateTaskIndexes', true );
-	xhr.setRequestHeader( 'Content-Type', 'application/json' );
-	
-	xhr.onreadystatechange = function() {
-		if( xhr.status == 404 ) {
-			//request was not received, inform user that the update did not happen
-			//figure out method / and status code for informing later		
+		xhr.onreadystatechange = function() {
+			if( xhr.status == 404 ) {
+				//request was not received, inform user that the update did not happen
+				//figure out method / and status code for informing later		
+			}
 		}
+		
+		xhr.send( JSON.stringify( indexUpdateList ) );
+		
+		//Remove this task list from the cache after one or more task indexes have been updated
+		removeCachedTaskList();
 	}
-	
-	xhr.send( JSON.stringify( indexUpdateList ) );
-	
-	//Remove this task list from the cache after one or more task indexes have been updated
-	removeCachedTaskList();
 }
 
 //remove item from our list 
@@ -261,8 +265,17 @@ function removeTaskEvent(e) {
 				//request was not received, inform user of error
 			}
 		};
+		//TODO:
+		//When deleting an item, if that item was not in the last index
+		//all indexes above this index must be decremented by 1 and updated on the server.
+		var indexUpdateList = [];
+		if( index < taskList.length -1 ) {
+			for( var i = index+1; i < taskList.length; i++ )
+				indexUpdateList.push( {taskid : taskList[i].taskid, index : i-1 } );
+		}
+		
 		//send the id that needs to be deleted
-		xhr.send( JSON.stringify( {id: taskList[index].taskid} ) );
+		xhr.send( JSON.stringify( {id: taskList[index].taskid, indexUpdateList: indexUpdateList} ) );
 	}
 	taskList.splice(index, 1);
 	//remove tasks for this date from cache when an item has been deleted
@@ -388,9 +401,9 @@ function updateTaskContents(e){
 }
 
 function taskIndexCompare( a, b ) {
-	if( a.index > b.index )
+	if( a.originalIndex > b.originalIndex )
 		return 1;
-	else if ( a.index < b.index )
+	else if ( a.originalIndex < b.originalIndex )
 		return -1;
 	else 
 		return 0;
