@@ -5,12 +5,10 @@ var express = require( 'express'),
 	app = express();
 
 function start() {
-	app.configure( function () {
-		app.use( express.static( 'client' ) );
-	});
+	app.use( express.static( 'client' ) );
 	
 	//setup routes to database
-	data(app, express);
+	data(app);
 	//setup front-end routes
 	view(app);
 

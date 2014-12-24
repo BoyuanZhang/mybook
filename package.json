@@ -3,7 +3,8 @@
    "description": "Simple Personal planner",
    "version": "0.0.1",
    "dependencies": {
-      "express": "3.x",
+      "express": "4.x",
+	  "body-parser":"*",
 	  "pg.js": "*"
    }
 }

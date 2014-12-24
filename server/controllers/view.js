@@ -7,7 +7,7 @@ var viewController = {
 		res.send('Login page');
 	},
 	'calendar' : function(req, res) {
-		res.sendfile( paths().client + '/views/calendar.html');
+		res.sendFile( paths().client + '/views/calendar.html');
 	},
 	'notfound' : function( req, res ) {
 		res.send('404, Page not found');
